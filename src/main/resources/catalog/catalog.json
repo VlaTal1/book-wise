@@ -1,5 +1,12 @@
 [
   {
+    "key": "8_grade",
+    "title": "Давня казка",
+    "author": "Леся Українка",
+    "grade": 8,
+    "file": "8_grade.pdf"
+  },
+  {
     "key": "9_grade",
     "title": "На камені",
     "author": "Михайло Коцюбинський",
