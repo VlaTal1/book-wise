@@ -10,8 +10,8 @@ It is one of three repositories:
 | Repository | Role |
 |---|---|
 | `book-wise-mobile` | React Native / Expo app for students and teachers |
-| `book-wise-be-java` (this one) | REST API, database, file storage, authorization |
-| `book-wise-be-python` | Speech recognition for reading-speed sessions, AI test generation, stress check |
+| `backend-java` (this one) | REST API, database, file storage, authorization |
+| `backend-python` | Speech recognition for reading-speed sessions, AI test generation, stress check |
 
 ## Tech stack
 
@@ -43,7 +43,7 @@ mobile ──REST + Supabase JWT──▶ Java (:8080) ──JPA──▶ Postgr
 
 - JDK 21
 - Docker (for PostgreSQL and MinIO)
-- RabbitMQ — started from `book-wise-be-python/docker-compose.yaml`
+- RabbitMQ — started from `backend-python/docker-compose.yaml`
 - A Supabase project (for authentication)
 
 ### 1. Start infrastructure
@@ -62,7 +62,7 @@ Create a `.env` file in the repository root (it is read on startup by `dotenv-ja
 ```dotenv
 SUPABASE_URL=https://<project>.supabase.co
 
-# Shared secret for service-to-service calls; must equal JAVA_INTERNAL_API_KEY in book-wise-be-python
+# Shared secret for service-to-service calls; must equal JAVA_INTERNAL_API_KEY in backend-python
 INTERNAL_API_KEY=<random-string>
 
 MINIO_ENDPOINT=http://localhost:9002

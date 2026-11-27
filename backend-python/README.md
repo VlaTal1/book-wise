@@ -9,8 +9,8 @@ It is one of three repositories:
 | Repository | Role |
 |---|---|
 | `book-wise-mobile` | React Native / Expo app for students and teachers |
-| `book-wise-be-java` | REST API, database, file storage, authorization |
-| `book-wise-be-python` (this one) | Speech recognition, AI test generation, stress check |
+| `backend-java` | REST API, database, file storage, authorization |
+| `backend-python` (this one) | Speech recognition, AI test generation, stress check |
 
 ## Features
 
@@ -55,7 +55,7 @@ Java ──HTTP /internal/book-paragraphs─────────────
 
 - Python 3.11+
 - Docker (for RabbitMQ)
-- MinIO and the Java backend running (see `book-wise-be-java`)
+- MinIO and the Java backend running (see `backend-java`)
 - A Gemini API key
 - Optional: Montreal Forced Aligner, for the stress check (see below)
 
@@ -103,7 +103,7 @@ SUPABASE_URL=https://<project>.supabase.co
 
 # Java backend
 JAVA_BASE_URL=http://localhost:8080
-JAVA_INTERNAL_API_KEY=<same value as INTERNAL_API_KEY in book-wise-be-java>
+JAVA_INTERNAL_API_KEY=<same value as INTERNAL_API_KEY in backend-java>
 
 # LLM
 GEMINI_API_KEY=<key>
