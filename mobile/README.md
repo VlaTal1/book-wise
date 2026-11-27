@@ -1,20 +1,20 @@
 # Book Wise - mobile
 
-Мобільний застосунок для початкової школи: діти читають книжки, проходять тести та вправи на швидкість читання, вчителі ведуть класи й дивляться статистику. Інтерфейс українською та англійською.
+Mobile app for primary school: kids read books and take tests and reading speed exercises, teachers manage classes and look at statistics. The UI is in Ukrainian and English.
 
-Стек: Expo, React Native, TypeScript, Expo Router, Tamagui, Redux Toolkit, Supabase Auth.
+Stack: Expo, React Native, TypeScript, Expo Router, Tamagui, Redux Toolkit, Supabase Auth.
 
-Застосунок використовує нативні модулі (мікрофон, PDF), тому запускається як development build, а не в Expo Go.
+The app uses native modules (microphone, PDF), so it runs as a development build, not in Expo Go.
 
-## Запуск
+## Run
 
 ```bash
 npm install
-npm run android     # або npm run ios
-npm start           # Metro, якщо білд уже встановлено
+npm run android     # or npm run ios
+npm start           # Metro, if the build is already installed
 ```
 
-Змінні середовища в `.env.development` (для production - `.env.production`):
+Environment variables go in `.env.development` (`.env.production` for production):
 
 ```
 EXPO_PUBLIC_API_BASE_URL=http://<ip>:8080
@@ -23,19 +23,19 @@ SUPABASE_URL=...
 SUPABASE_ANON_KEY=...
 ```
 
-На телефоні потрібен IP комп'ютера в мережі, не localhost.
+On a phone use your computer's LAN IP, not localhost.
 
-Збірка через EAS:
+EAS build:
 
 ```bash
 eas build --profile preview --platform android
 ```
 
-## Структура
+## Structure
 
-- `app/` - екрани (Expo Router)
-- `components/` - компоненти
-- `api/` - запити до Java-бекенду
-- `services/` - WebSocket і запис аудіо
+- `app/` - screens (Expo Router)
+- `components/` - UI components
+- `api/` - requests to the Java backend
+- `services/` - WebSocket and audio recording
 - `store/`, `auth/`, `hooks/`, `utils/`, `types/`
-- `localization/` - переклади
+- `localization/` - translations

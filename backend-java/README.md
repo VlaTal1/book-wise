@@ -1,28 +1,28 @@
 # Book Wise - Java backend
 
-Основний REST API: користувачі, книжки, класи, тести, прогрес читання, статистика.
+Main REST API: users, books, classrooms, tests, reading progress, statistics.
 
-Стек: Java 21, Spring Boot 3.4, PostgreSQL + Liquibase, MinIO, RabbitMQ, Supabase JWT.
+Stack: Java 21, Spring Boot 3.4, PostgreSQL + Liquibase, MinIO, RabbitMQ, Supabase JWT.
 
-- `/api/**` - для мобільного застосунку (Supabase JWT)
-- `/internal/**` - для Python-сервісу (ключ `INTERNAL_API_KEY`)
+- `/api/**` - for the mobile app (Supabase JWT)
+- `/internal/**` - for the Python service (`INTERNAL_API_KEY`)
 
-## Запуск
+## Run
 
-Потрібні JDK 21 і Docker. RabbitMQ піднімається з `docker-compose.yaml` в `backend-python`.
+Needs JDK 21 and Docker. RabbitMQ is started from `docker-compose.yaml` in `backend-python`.
 
 ```bash
-docker compose up -d     # PostgreSQL і MinIO
+docker compose up -d     # PostgreSQL and MinIO
 ./gradlew bootRun        # http://localhost:8080
 ```
 
-У MinIO (http://localhost:9001) треба створити бакет з `MINIO_BUCKET_NAME`.
+Create the bucket from `MINIO_BUCKET_NAME` in MinIO (http://localhost:9001).
 
-Файл `.env` в корені:
+`.env` in the project root:
 
 ```
 SUPABASE_URL=https://<project>.supabase.co
-INTERNAL_API_KEY=<ключ, такий самий як JAVA_INTERNAL_API_KEY у python>
+INTERNAL_API_KEY=<same as JAVA_INTERNAL_API_KEY in python>
 MINIO_ENDPOINT=http://localhost:9002
 MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=minioadmin
@@ -35,6 +35,6 @@ RABBITMQ_PASSWORD=guest
 RABBITMQ_VIRTUAL_HOST=/
 ```
 
-`PYTHON_BASE_URL` за замовчуванням `http://localhost:8001`. Логін/пароль до бази задані в `application.yml`.
+`PYTHON_BASE_URL` defaults to `http://localhost:8001`. Database login and password are set in `application.yml`.
 
-Тести: `./gradlew test`, збірка: `./gradlew bootJar`.
+Tests: `./gradlew test`, build: `./gradlew bootJar`.
