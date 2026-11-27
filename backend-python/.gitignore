@@ -1,0 +1,6 @@
+.env
+.venv
+.idea
+vosk_models/
+reading_sessions/
+stress_sessions/

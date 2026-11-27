@@ -1,0 +1,168 @@
+"""
+Випадковий уривок (~300-340 слів) з книги, призначеної дитині (Access у
+Java, отримуємо через java_client.get_participant_books), для сесії читання
+замість фіксованого resources/reference_texts/text_1.json.
+
+Пайплайн: список призначених книг (Java, internal-ендпоінт) -> фільтр на
+PDF (EPUB поки не парситься ніде в проекті — немає готового екстрактора
+тексту) -> випадкова книга -> завантаження з MinIO -> випадкова сторінка ->
+чистий текст твору (services/pdf_text: без колонтитулів, виносок, підписів,
+завдань підручника) -> розбиття на речення -> випадкове вікно речень такого
+розміру, щоб не розрізати речення посередині.
+
+Якщо книга не підійшла (замало тексту, скановані сторінки без шару тексту
+тощо) — пробуємо наступну книгу зі списку, а не одразу здаємось.
+"""
+
+import logging
+import os
+import random
+import re
+import uuid
+
+import pymupdf
+from minio.error import S3Error
+
+from core.config import settings
+from models.reading_speed import ReferenceText
+from services import catalog_excerpts, java_client
+from services.minio_client import minio_client
+from services.pdf_text import extract_text
+from utils.reference_text import build_reference_text
+
+logger = logging.getLogger(__name__)
+
+# "так на 300, може чуть більше" (постановка задачі) — беремо вікно речень,
+# що покриває [MIN, HARD_CAP] слів, віддаючи перевагу ближчому до MIN, але
+# не розрізаючи останнє речення посередині (звідси запас до HARD_CAP).
+EXCERPT_TARGET_MIN_WORDS = 300
+EXCERPT_TARGET_MAX_WORDS = 340
+EXCERPT_HARD_CAP_WORDS = 400
+# Скільки сторінок від випадкової стартової читаємо за одну спробу — з
+# запасом над тим, скільки типово треба тексту прози, щоб набрати 300+ слів
+# (при цьому не читаємо книгу цілком, це занадто повільно для WS-хендшейку).
+EXCERPT_MAX_PAGES_SCAN = 20
+
+_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?…])\s+")
+
+
+class NoExcerptAvailableError(Exception):
+    pass
+
+
+def select_random_excerpt(participant_id: int) -> ReferenceText:
+    books = java_client.get_participant_books(participant_id)
+    pdf_books = [b for b in books if b.get("fileType") == "application/pdf"]
+    random.shuffle(pdf_books)
+
+    for book in pdf_books:
+        try:
+            excerpt = excerpt_for_book(book)
+        except Exception:
+            logger.exception(f"Failed to extract excerpt from book {book.get('id')} ({book.get('fileName')})")
+            continue
+        if excerpt is not None:
+            return excerpt
+        logger.warning(f"Book {book.get('id')} ({book.get('fileName')}) did not yield a usable excerpt, trying next")
+
+    raise NoExcerptAvailableError(
+        f"No suitable book excerpt for participant {participant_id}: "
+        f"{len(books)} books assigned, {len(pdf_books)} of them PDF"
+    )
+
+
+def excerpt_for_book(book: dict) -> ReferenceText | None:
+    """Випадковий уривок з конкретної книги: для книг каталогу — один із
+    заздалегідь підготовлених (закінчені сцени), для решти — вікно речень з
+    випадкової сторінки PDF."""
+    catalog_key = book.get("catalogKey")
+    if catalog_excerpts.has_excerpts(catalog_key):
+        return catalog_excerpts.random_excerpt(catalog_key, book.get("title"))
+    if book.get("fileType") not in (None, "application/pdf"):
+        return None
+    return _extract_excerpt_from_book(book)
+
+
+def _extract_excerpt_from_book(book: dict) -> ReferenceText | None:
+    file_name = book.get("fileName")
+    book_id = book.get("id")
+    if not file_name or book_id is None:
+        return None
+    title = book.get("title") or "Книга"
+
+    local_path = _download_book(file_name)
+    try:
+        with pymupdf.open(local_path) as doc:
+            num_pages = len(doc)
+        if num_pages == 0:
+            return None
+
+        start_page_idx = random.randrange(num_pages)
+        text = extract_text(local_path, start_page_idx, start_page_idx + EXCERPT_MAX_PAGES_SCAN)
+        # Випадкова сторінка могла впасти близько до кінця книги — тоді
+        # решти тексту може не вистачити на цільову кількість слів. Одна
+        # додаткова спроба з початку книги дешевша й простіша, ніж шукати
+        # "останню придатну" стартову сторінку заздалегідь.
+        if len(text.split()) < EXCERPT_TARGET_MIN_WORDS and start_page_idx > 0:
+            start_page_idx = 0
+            text = extract_text(local_path, 0, EXCERPT_MAX_PAGES_SCAN)
+
+        sentences = _split_sentences(re.sub(r"\s+", " ", text).strip())
+        if not sentences:
+            return None
+
+        window_text = _pick_excerpt_window(sentences)
+        if window_text is None:
+            return None
+
+        excerpt_id = f"book:{book_id}:{start_page_idx}"
+        excerpt_title = f"{title} (уривок)"
+        return build_reference_text(excerpt_id, excerpt_title, window_text)
+    except S3Error as e:
+        logger.error(f"MinIO error while downloading book {file_name}: {e}")
+        return None
+    finally:
+        _cleanup_temp_file(local_path)
+
+
+def _download_book(file_name: str) -> str:
+    os.makedirs(settings.temp_dir, exist_ok=True)
+    # Ім'я об'єкта може містити "/" (книги каталогу: catalog/9_grade.pdf).
+    local_path = os.path.join(settings.temp_dir, f"excerpt_{uuid.uuid4().hex}_{os.path.basename(file_name)}")
+    minio_client.fget_object(
+        bucket_name=settings.minio_bucket,
+        object_name=file_name,
+        file_path=local_path,
+    )
+    return local_path
+
+
+def _cleanup_temp_file(path: str) -> None:
+    try:
+        os.remove(path)
+    except OSError:
+        pass
+
+
+def _split_sentences(text: str) -> list[str]:
+    parts = [p.strip() for p in _SENTENCE_SPLIT_RE.split(text) if p.strip()]
+    # Відкидаємо занадто короткі "речення" (1-2 слова) — типово це залишки
+    # PDF-артефактів (розірвані заголовки, колонтитули), не повноцінна проза.
+    return [p for p in parts if len(p.split()) >= 3]
+
+
+def _pick_excerpt_window(sentences: list[str]) -> str | None:
+    word_counts = [len(s.split()) for s in sentences]
+    n = len(sentences)
+    starts = list(range(n))
+    random.shuffle(starts)
+
+    for start in starts:
+        total = 0
+        end = start
+        while end < n and total < EXCERPT_TARGET_MIN_WORDS:
+            total += word_counts[end]
+            end += 1
+        if EXCERPT_TARGET_MIN_WORDS <= total <= EXCERPT_HARD_CAP_WORDS:
+            return " ".join(sentences[start:end])
+    return None
