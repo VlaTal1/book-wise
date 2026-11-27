@@ -1,0 +1,88 @@
+@startuml BOM
+
+class Book {
+    id: Long
+    title: String
+    author: String
+    userId: String
+    filePath: String
+    fileName: String
+    originalFileName: String
+    fileSize: Long
+    fileType: String
+}
+
+class Child {
+    id: Long
+    supId: Long
+    name: String
+    userId: String
+}
+
+class Access {
+    id: Long
+    childId: Long **<<FK>>**
+    bookId: Long **<<FK>>**
+}
+
+class Progress {
+    id: Long
+    childId: Long **<<FK>>**
+    bookId: Long **<<FK>>**
+    readPages: Long
+    currentPage: Long
+    startDate: Date
+    endDate: Date
+    status: String
+}
+
+class ReadingSession {
+    id: Long
+    progressId: Long **<<FK>>**
+    startTime: Date
+    endTime: Date
+    startPage: Integer
+    endPage: Integer
+    time: Long
+}
+
+class Test {
+    id: Long
+    progressId: Long **<<FK>>**
+    pagesPerQuestion: Integer
+    startPage: Integer
+    endPage: Integer
+    completed: String
+    dueTo: Date
+    passedDate: Date
+    grade: Integer
+    correct_answers: Integer
+}
+
+class Question {
+    id: Long
+    testId: Long **<<FK>>**
+    question: String
+    quote: String
+}
+
+class Answer {
+    id: Long
+    questionId: Long **<<FK>>**
+    answer: String
+    correct: Boolean
+    selected: Boolean
+}
+
+Access |o--|| Book
+Access |o--|| Child
+
+Progress |o--|| Book
+Progress |o--|| Child
+Progress ||--o{ ReadingSession
+Progress ||--o{ Test
+
+Test ||--o{ Question
+Answer }o--|| Question
+
+@enduml

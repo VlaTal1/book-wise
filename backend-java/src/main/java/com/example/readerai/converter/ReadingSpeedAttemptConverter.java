@@ -1,0 +1,76 @@
+package com.example.readerai.converter;
+
+import com.example.readerai.dto.ReadingSpeedAttemptDTO;
+import com.example.readerai.entity.ClassroomReading;
+import com.example.readerai.entity.ReadingSpeedAttempt;
+import org.springframework.stereotype.Component;
+
+@Component
+public class ReadingSpeedAttemptConverter {
+
+    public ReadingSpeedAttempt fromDTO(ReadingSpeedAttemptDTO entry) {
+        return ReadingSpeedAttempt.builder()
+                .id(entry.getId())
+                .textId(entry.getTextId())
+                .totalWords(entry.getTotalWords())
+                .correctCount(entry.getCorrectCount())
+                .errorCount(entry.getErrorCount())
+                .skippedCount(entry.getSkippedCount())
+                .notInVocabularyCount(entry.getNotInVocabularyCount())
+                .durationSeconds(entry.getDurationSeconds())
+                .wpm(entry.getWpm())
+                .accuracy(entry.getAccuracy())
+                .wordsJson(entry.getWordsJson())
+                .audioFileName(entry.getAudioFileName())
+                .referenceWordsJson(entry.getReferenceWordsJson())
+                .quizTotal(entry.getQuizTotal())
+                .createdAt(entry.getCreatedAt())
+                .updatedAt(entry.getUpdatedAt())
+                .build();
+    }
+
+    public ReadingSpeedAttemptDTO toDTO(ReadingSpeedAttempt entry) {
+        return ReadingSpeedAttemptDTO.builder()
+                .id(entry.getId())
+                .participantId(entry.getParticipant().getId())
+                .participantName(entry.getParticipant().getName())
+                .textId(entry.getTextId())
+                .totalWords(entry.getTotalWords())
+                .correctCount(entry.getCorrectCount())
+                .errorCount(entry.getErrorCount())
+                .skippedCount(entry.getSkippedCount())
+                .notInVocabularyCount(entry.getNotInVocabularyCount())
+                .durationSeconds(entry.getDurationSeconds())
+                .wpm(entry.getWpm())
+                .accuracy(entry.getAccuracy())
+                .wordsJson(entry.getWordsJson())
+                .stressStatus(entry.getStressStatus())
+                .stressProgress(entry.getStressProgress())
+                .stressAccuracy(entry.getStressAccuracy())
+                .stressCheckedWords(entry.getStressCheckedWords())
+                .stressCorrectWords(entry.getStressCorrectWords())
+                .stressWordsJson(entry.getStressWordsJson())
+                .stressError(entry.getStressError())
+                .audioFileName(entry.getAudioFileName())
+                .referenceWordsJson(entry.getReferenceWordsJson())
+                .targetWpm(entry.getTargetWpm())
+                .quizTotal(entry.getQuizTotal())
+                .quizCorrect(entry.getQuizCorrect())
+                .grade(entry.getGrade())
+                .speedScore(entry.getSpeedScore())
+                .pronunciationScore(entry.getPronunciationScore())
+                .comprehensionScore(entry.getComprehensionScore())
+                .classroomReadingId(entry.getClassroomReading() == null ? null : entry.getClassroomReading().getId())
+                .classroomReadingTitle(classroomReadingTitle(entry.getClassroomReading()))
+                .createdAt(entry.getCreatedAt())
+                .updatedAt(entry.getUpdatedAt())
+                .build();
+    }
+
+    private static String classroomReadingTitle(ClassroomReading reading) {
+        if (reading == null) {
+            return null;
+        }
+        return reading.getName() != null ? reading.getName() : reading.getBook().getTitle();
+    }
+}

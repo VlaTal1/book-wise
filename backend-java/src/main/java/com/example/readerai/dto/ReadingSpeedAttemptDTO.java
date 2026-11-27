@@ -1,0 +1,87 @@
+package com.example.readerai.dto;
+
+import com.example.readerai.entity.StressStatus;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
+@Getter
+@Setter
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ReadingSpeedAttemptDTO extends AuditDTO {
+
+    private Long id;
+
+    private Long participantId;
+
+    // Заповнюється лише конвертером у toDTO() (для списку історії в
+    // режимі батьків, де один список змішує кількох дітей) — Python його
+    // не надсилає і не читає, DTO лише читається на це поле.
+    private String participantName;
+
+    private String textId;
+
+    private Integer totalWords;
+
+    private Integer correctCount;
+
+    private Integer errorCount;
+
+    private Integer skippedCount;
+
+    private Integer notInVocabularyCount;
+
+    private Double durationSeconds;
+
+    private Double wpm;
+
+    private Double accuracy;
+
+    // Пословний результат як сирий JSON-масив (Python вже формує його готовим,
+    // Java лише зберігає і повертає, не парсячи структуру).
+    private String wordsJson;
+
+    @Builder.Default
+    private StressStatus stressStatus = StressStatus.PENDING;
+
+    private Integer stressProgress;
+
+    private Double stressAccuracy;
+
+    private Integer stressCheckedWords;
+
+    private Integer stressCorrectWords;
+
+    private String stressWordsJson;
+
+    private String stressError;
+
+    private String audioFileName;
+
+    private String referenceWordsJson;
+
+    private Integer targetWpm;
+
+    private Integer quizTotal;
+
+    private Integer quizCorrect;
+
+    private Integer grade;
+
+    private Integer speedScore;
+
+    private Integer pronunciationScore;
+
+    private Integer comprehensionScore;
+
+    // Фрагмент, призначений класу (надсилає Python); null — вільне тренування.
+    private Long classroomReadingId;
+
+    // Назва завдання для історії: задана вчителем або назва книги; null — вільне тренування.
+    private String classroomReadingTitle;
+}
