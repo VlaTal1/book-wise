@@ -2,7 +2,6 @@ import apiRequest, {ApiResponse} from "@/api";
 import {ClassroomReading, ClassroomReadingRequest, ClassroomReadingResults} from "@/types/ClassroomReading";
 
 const classroomReadingApi = {
-    // Абзаци чистого тексту сторінок книги — вчитель обирає перший і останній.
     previewParagraphs: async ({classroomId, bookId, startPage, endPage}: {
         classroomId: string;
         bookId: number;
@@ -49,7 +48,6 @@ const classroomReadingApi = {
             path: `/api/classrooms/${classroomId}/readings/${readingId}/results`,
         });
     },
-    // Учень — завдання свого класу зі своїми спробами й найкращою оцінкою.
     fetchMyReadings: async (): Promise<ApiResponse<ClassroomReading[]>> => {
         return apiRequest<ClassroomReading[]>({
             path: "/api/classroom-readings/my",

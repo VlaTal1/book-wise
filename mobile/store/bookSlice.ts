@@ -3,7 +3,7 @@ import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {Book} from "@/types/Book";
 
 interface BookState {
-    testBook?: Book; // TODO move to testSlice
+    testBook?: Book;
 }
 
 const initialState: BookState = {

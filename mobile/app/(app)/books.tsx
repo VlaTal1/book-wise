@@ -55,7 +55,6 @@ const Books = () => {
         },
     );
 
-    // Вчителю бекенд повертає завантажені ним книги, учню — книги його класу.
     const invokeFetchBooks = useCallback(() => {
         fetchBooksApi.execute();
     }, [fetchBooksApi]);

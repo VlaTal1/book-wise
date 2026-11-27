@@ -11,7 +11,6 @@ type Props = {
     participant: Participant;
     onPress?: () => void;
     disabled?: boolean;
-    // Замість стрілки праворуч (напр. дії з локальним учнем).
     rightElement?: React.ReactNode;
 } & GetProps<typeof ThemeableStack>;
 

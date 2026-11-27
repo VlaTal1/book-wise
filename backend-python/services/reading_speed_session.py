@@ -16,9 +16,7 @@ from utils.reference_text import build_grammar_phrase
 
 logger = logging.getLogger(__name__)
 
-BYTES_PER_SAMPLE = 2  # PCM16
-# Префікс об'єктів у тому самому books-бакеті, що й файли книг (Java,
-# MinioService) — щоб не заводити окремий бакет лише заради аудіо сесій.
+BYTES_PER_SAMPLE = 2
 AUDIO_MINIO_PREFIX = "reading-audio"
 
 
@@ -42,8 +40,6 @@ class ReadingSpeedSession:
         self._recognizer.SetWords(True)
         self._latest_partial_word_count = 0
 
-        # Другий розпізнавач без граматики для гібридної перевірки замін —
-        # у власному потоці, щоб не затримувати підсвітку слів.
         self._open_vosk = (
             substitution_check.OpenVoskWorker(get_model()) if substitution_check.is_available() else None
         )
@@ -58,9 +54,6 @@ class ReadingSpeedSession:
         words = partial.get("partial", "").split()
         self._latest_partial_word_count = len(words)
         committed_events = self._tracker.feed_partial(words)
-        # Чорнові прогнози для ще не підтверджених слів — миттєвий відгук на
-        # клієнті, поки TAIL_HOLDBACK тримає остаточне рішення (розділ 9, п.5
-        # дока: "способи зменшити затримку" — варіант 2).
         tentative_events = self._tracker.preview_tentative()
         return committed_events + tentative_events
 
@@ -113,9 +106,6 @@ class ReadingSpeedSession:
         words = final.get("text", "").split()
         events = self._tracker.finalize(words)
 
-        # Тривалість рахуємо за кількістю фактично надісланих аудіо-семплів,
-        # а не за wall-clock часом обробки на сервері — інакше мережеві
-        # затримки/джиттер спотворювали б WPM.
         duration = self._total_audio_bytes / (SAMPLE_RATE * BYTES_PER_SAMPLE)
         metrics = self._tracker.compute_metrics(duration)
         self._save_audio()
@@ -142,8 +132,6 @@ class ReadingSpeedSession:
         for index, status in sorted(confirmed.items()):
             if self._tracker.status_of(index) == WordStatus.CORRECT:
                 events.append(self._tracker.override_status(index, status))
-        # Перевірка замін теж може позначити останні слова як пропущені (запис
-        # обірвався) — знову обрізаємо такий хвіст.
         events.extend(self._tracker.trim_trailing_skipped())
         logger.info(
             f"Session {self.session_id}: substitution check changed {len(events)} word(s) "

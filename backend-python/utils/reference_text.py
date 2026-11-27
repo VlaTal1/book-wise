@@ -8,13 +8,7 @@ from models.reading_speed import ReferenceText, ReferenceWord
 from services.vocabulary import is_in_vocabulary
 
 
-# Слово — пробіг \w, всередині якого може бути апостроф: «п’ять», «б’ється»
-# — одне слово, а не «п» + «ять». Дефіс і решта пунктуації слова розділяють
-# ('далеко-широко' -> 'далеко широко', а не неіснуюче 'далекошироко').
-# Апостроф лише між літерами, тож лапки-одинарні 'так' його не зачіпають.
 _WORD_RE = re.compile(r"\w+(?:['’ʼ]\w+)*")
-# У словниках Vosk (graph/words.txt) і MFA апостроф — ASCII ', а в текстах
-# книг і в розпізнаванні Moonshine трапляються ’ та ʼ.
 _APOSTROPHE_RE = re.compile(r"[’ʼ]")
 _WHITESPACE_RE = re.compile(r"\s+")
 
@@ -43,8 +37,6 @@ def _tokenize_with_display(raw_text: str) -> list[tuple[str, str]]:
     result = []
     for i, m in enumerate(matches):
         end = matches[i + 1].start() if i + 1 < len(matches) else len(raw_text)
-        # Перенос рядка між словом і тире репліки («дітвори.\n— А») інакше
-        # потрапляє всередину плашки слова, і тире малюється під ним.
         display = _WHITESPACE_RE.sub(" ", raw_text[m.start():end].rstrip())
         result.append((normalize_word(m.group()), display))
     return result

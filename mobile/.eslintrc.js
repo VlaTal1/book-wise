@@ -32,20 +32,17 @@ module.exports = {
         "unused-imports",
     ],
     rules: {
-        // Possible Errors
         "no-console": "warn",
         "no-debugger": "error",
         "no-extra-boolean-cast": "warn",
         "no-irregular-whitespace": "error",
 
-        // Best Practices
         "eqeqeq": ["error", "always"],
         "no-else-return": "error",
         "no-empty-function": "warn",
         "no-multi-spaces": "error",
         "curly": ["error", "all"],
 
-        // Variables
         "no-unused-vars": "warn",
         "unused-imports/no-unused-imports": "error",
         "unused-imports/no-unused-vars": [
@@ -53,7 +50,6 @@ module.exports = {
             {vars: "all", varsIgnorePattern: "^_", args: "after-used", argsIgnorePattern: "^_"},
         ],
 
-        // Import Rules
         "import/order": [
             "error",
             {
@@ -65,8 +61,7 @@ module.exports = {
         "import/no-default-export": "off",
         "import/namespace": "off",
 
-        // React Specific
-        "react/prop-types": "off", // If you use TypeScript for types
+        "react/prop-types": "off",
         "react/display-name": "off",
         "react/jsx-boolean-value": ["error", "always"],
         "react/jsx-curly-brace-presence": ["error", {props: "never", children: "ignore"}],
@@ -74,15 +69,12 @@ module.exports = {
         "react/jsx-no-useless-fragment": "warn",
         "react/no-array-index-key": "warn",
 
-        // Hooks
         "react-hooks/rules-of-hooks": "error",
         "react-hooks/exhaustive-deps": "warn",
 
-        // JSX Accessibilityf
         "jsx-a11y/anchor-is-valid": "warn",
         "jsx-a11y/alt-text": "error",
 
-        // Enforce double quotes in JSX
         "jsx-quotes": ["error", "prefer-double"],
         "quotes": ["error", "double", {"avoidEscape": true}],
 

@@ -32,19 +32,6 @@ const LegendRow = ({color, label}: { color: string; label: string }) => (
     </XStack>
 );
 
-// Три лінії на одному графіку, усі на спільній осі 0-100. Швидкість (WPM)
-// природньо не 0-100 — тому нормуємо її відносно максимуму в цій вибірці
-// лише для ФОРМИ лінії; реальне значення показуємо в dataPointText і явно
-// пишемо про це в підписі під графіком.
-//
-// Навмисно НЕ використовуємо `dataSet` (масив ліній) — ця комбінація з
-// основним `data` в react-native-gifted-charts призводила до того, що
-// ОСНОВНА лінія (точність читання) взагалі не малювалась (data0 всередині
-// бібліотеки бере дані з dataSet[0], ніби підміняючи основну лінію), а до
-// того ж окрема secondaryData/secondaryYAxis падала рантайм-помилкою
-// ("Cannot read property 'areaChart' of undefined"). Натомість — простіші,
-// незалежні одна від одної пари `data2`/`color2` і `data3`/`color3`
-// (той самий API, яким бібліотека підтримує до 5 ліній одразу).
 const ReadingSpeedDailyChart: React.FC<Props> = ({data}) => {
     const {accuracyData, stressData, wpmData, hasStressData} = useMemo(() => {
         const maxWpm = Math.max(...data.map((d) => d.averageWpm), 1);
@@ -59,9 +46,6 @@ const ReadingSpeedDailyChart: React.FC<Props> = ({data}) => {
             const label = formatDate(day.date);
             accuracyData.push({value: Math.round(day.averageAccuracy * 100), label});
 
-            // Немає завершеної перевірки наголосу цього дня — тягнемо
-            // останнє відоме значення вперед (рівна ділянка лінії), а не 0
-            // (0% виглядало б як раптовий провал точності, а не "ще не порахували").
             if (day.averageStressAccuracy !== null) {
                 lastStress = Math.round(day.averageStressAccuracy * 100);
             }

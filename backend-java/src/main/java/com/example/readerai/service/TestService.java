@@ -62,9 +62,6 @@ public class TestService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // Тест учня на основі тесту класу. Генерацію тут не запускаємо — її
-    // запускає ClassroomService один раз на весь клас. Якщо питання для
-    // тесту класу вже згенеровані (учень вступив пізніше), копіюємо їх одразу.
     @Transactional
     public TestDTO createStudentTest(ClassroomTest classroomTest, Participant participant) {
         accessService.grantAccess(classroomTest.getBook(), participant);
@@ -131,7 +128,6 @@ public class TestService {
                 throw new IllegalStateException("Generation failed: " + response.getError());
             }
 
-            // Тест класу: одна генерація — ті самі питання в тестах усіх учнів.
             for (Test target : getGenerationTargets(test)) {
                 if (target.getQuestions() == null || target.getQuestions().isEmpty()) {
                     saveQuestions(target, response.getQuestions());
@@ -145,8 +141,6 @@ public class TestService {
         }
     }
 
-    // Створює нові Question/Answer для тесту (id з DTO ігноруються — кожен
-    // учень отримує власні записи, щоб відповіді й вибір не перетиналися).
     private void saveQuestions(Test test, List<QuestionDTO> questionDTOs) {
         List<Question> questions = new ArrayList<>();
         for (QuestionDTO questionDTO : questionDTOs) {
@@ -172,8 +166,6 @@ public class TestService {
         }
 
         test.setQuestions(questions);
-        // Python-сервіс може пропустити питання, текст для яких заблокувала
-        // модель, — показуємо фактичну кількість, а не запитану.
         test.setQuestionsAmount(questions.size());
         test.setGenerationStatus(GenerationStatus.READY);
         testRepository.save(test);
@@ -189,8 +181,6 @@ public class TestService {
                 : List.of(test);
     }
 
-    // Викликається, коли Python-сервіс повідомив про помилку або питання не
-    // вдалося зберегти — інакше тести назавжди лишилися б у стані GENERATING.
     @Transactional
     public void markGenerationFailed(Long testId) {
         if (testId == null) {
@@ -206,7 +196,6 @@ public class TestService {
         });
     }
 
-    // Повторна генерація для тестів класу, яким питання ще не дісталися.
     public void regenerate(ClassroomTest classroomTest) {
         List<Test> targets = testRepository.findAllByClassroomTest_Id(classroomTest.getId()).stream()
                 .filter(test -> test.getGenerationStatus() != GenerationStatus.READY)
@@ -228,7 +217,6 @@ public class TestService {
                 classroomTest.getQuestionsAmount());
     }
 
-    // Видаляє тести учнів разом з питаннями, відповідями й оцінками.
     @Transactional
     public void deleteTests(List<Test> tests) {
         for (Test test : tests) {
@@ -326,8 +314,6 @@ public class TestService {
 
         float grade = ((float) correctAnswers / testDTO.getQuestions().size()) * 10f;
 
-        // Оновлюємо завантажену сутність, а не зібрану з DTO клієнта — інакше
-        // втратилися б зв'язок з тестом класу та статус генерації.
         test.setCompleted(CompleteStatus.COMPLETED.toString());
         test.setPassedDate(LocalDateTime.now());
         test.setGrade(Math.round(grade));

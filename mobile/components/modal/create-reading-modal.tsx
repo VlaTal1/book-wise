@@ -22,16 +22,12 @@ type Props = {
     onSave: () => void;
     classroomId: number;
     classroomName: string;
-    // Фрагмент можна взяти лише з книги, призначеної класу.
     books: Book[];
 }
 
-// Той самий ліміт, що й на бекенді (ClassroomReadingService.MAX_WORDS).
 const MAX_WORDS = 1500;
-// Як ClassroomReadingService.MAX_NAME_LENGTH.
 const MAX_NAME_LENGTH = 100;
 
-// null — без обмежень.
 const TIME_LIMIT_OPTIONS: (number | null)[] = [60, 120, 180, 300, null];
 const ATTEMPTS_OPTIONS: (number | null)[] = [1, 2, 3, 5, null];
 
@@ -53,8 +49,6 @@ const Chip: FC<{label: string; selected: boolean; onPress: () => void}> = ({labe
     </XStack>
 );
 
-// Вчитель обирає книгу й сторінки, бачить їх чистий текст абзацами і
-// позначає перший та останній абзац фрагмента; ліміт часу й спроб — чипами.
 const CreateReadingModal: FC<Props> = ({onClose, isOpen, onSave, classroomId, classroomName, books}) => {
 
     const [mode, setMode] = useState<ReadingMode>("RANDOM");
@@ -63,7 +57,6 @@ const CreateReadingModal: FC<Props> = ({onClose, isOpen, onSave, classroomId, cl
     const [isBookSelectModalOpen, setIsBookSelectModalOpen] = useState(false);
     const [startPage, setStartPage] = useState("1");
     const [endPage, setEndPage] = useState("1");
-    // Абзаци попереднього перегляду — для сторінок, з якими їх завантажено.
     const [paragraphs, setParagraphs] = useState<string[] | null>(null);
     const [startParagraph, setStartParagraph] = useState<number | null>(null);
     const [endParagraph, setEndParagraph] = useState<number | null>(null);
@@ -139,8 +132,6 @@ const CreateReadingModal: FC<Props> = ({onClose, isOpen, onSave, classroomId, cl
         });
     }, [previewApi, classroomId, selectedBook, startPage, endPage, pagesValid]);
 
-    // Перший дотик — початок, другий — кінець (якщо раніше за початок —
-    // міняємо місцями); дотик після обраного діапазону починає вибір заново.
     const onParagraphPress = useCallback((index: number) => {
         if (startParagraph === null || endParagraph !== null) {
             setStartParagraph(index);

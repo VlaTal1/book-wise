@@ -24,16 +24,12 @@ public class Classroom extends Audit {
     @Column(name = "NAME", nullable = false)
     private String name;
 
-    // Код, за яким учні вступають до класу.
     @Column(name = "CODE", nullable = false, unique = true)
     private String code;
 
-    // Supabase user id вчителя-власника класу.
     @Column(name = "TEACHER_USER_ID", nullable = false)
     private String teacherUserId;
 
-    // Норма темпу читання вголос (правильних слів за хвилину) для учнів
-    // класу — задає вчитель, використовується в оцінці читання на швидкість.
     @Column(name = "TARGET_WPM", nullable = false)
     private Integer targetWpm;
 }

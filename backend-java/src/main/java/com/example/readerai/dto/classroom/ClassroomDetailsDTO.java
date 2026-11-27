@@ -22,9 +22,7 @@ public class ClassroomDetailsDTO extends ClassroomDTO {
 
     private List<BookDTO> books;
 
-    // Лише для вчителя класу; учень бачить свої тести на екрані тестів.
     private List<ClassroomTestDTO> tests;
 
-    // Фрагменти для читання на швидкість — лише для вчителя класу.
     private List<ClassroomReadingDTO> readings;
 }

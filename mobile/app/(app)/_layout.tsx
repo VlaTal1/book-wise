@@ -12,7 +12,6 @@ import i18n from "@/localization/i18n";
 import {useRole} from "@/hooks/roleContext";
 import StudentModeBanner from "@/components/StudentModeBanner";
 
-
 export default function App() {
     const {user, isLoading: isProfileLoading} = useAuth();
     const {profile, needsOnboarding, isLoading: isRoleLoading, refreshProfile} = useRole();
@@ -29,8 +28,6 @@ export default function App() {
         )
     }
 
-    // Спінер лише до першого завантаження профілю — інакше повторне
-    // оновлення профілю демонтувало б весь стек навігації.
     if (isProfileLoading || !user || (isRoleLoading && !profile)) {
         return (
             <>

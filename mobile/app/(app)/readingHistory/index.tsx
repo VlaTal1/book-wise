@@ -14,10 +14,6 @@ import participantApi from "@/api/endpoints/participantApi";
 import ParticipantButton from "@/components/buttons/ParticipantButton";
 import {useRole} from "@/hooks/roleContext";
 
-// Учень: власна історія — без вибору, одразу редірект на
-// readingHistory/participant/[participantId].
-// Вчитель: спочатку список учнів його класів, по натисканню — історія
-// саме цього учня (той самий екран participant/[participantId]).
 const ReadingHistory = () => {
     const router = useRouter();
     const {studentId, isStudent, isTeacher} = useRole();

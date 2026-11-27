@@ -2,7 +2,6 @@ import {createTamagui, createTokens} from "tamagui";
 
 import {Geist, Inter} from "@/styles/fonts";
 
-
 export const size = {
     1: 12,
     2: 16,
@@ -18,18 +17,14 @@ export const size = {
 export const tokens = createTokens({
     size,
     space: {...size, "-1": -5, "-2": -10},
-    // "Warm Reading Nook" shape language: generous, friendly rounding.
-    // 5/6 (24/32) are cards & sheets, 7 (999) is the pill used by every button.
     radius: {0: 0, 1: 8, 2: 12, 3: 16, 4: 20, 5: 24, 6: 32, 7: 999, true: 20},
     zIndex: {0: 0, 1: 100, 2: 200},
     color: {
-        // Primary brand accent — burnt terracotta (replaces the old indigo).
         "accent-regular": "#CB5A2E",
         "accent-pressed": "#A8451F",
         "accent-disabled": "#E8C7AE",
         "accent-highlight": "#FBEAD9",
 
-        // Secondary brand hues, used consistently per feature area.
         "sage-regular": "#3F8A5D",
         "sage-pressed": "#2F6B45",
         "sage-highlight": "#E7F3EA",
@@ -51,7 +46,6 @@ export const tokens = createTokens({
 
         "background": "#F6EFE1",
 
-        // Warm neutral scale (paper -> ink) replaces the old cold slate grays.
         "gray-100": "#FFFFFF",
         "gray-93": "#FBF6EC",
         "gray-85": "#EFE3CB",
@@ -121,7 +115,6 @@ const tamaguiConfig = createTamagui({
             "error-highlight": tokens.color["error-highlight"],
             "error-primary": tokens.color["error-primary"],
         },
-        // TODO : add black theme
     },
 });
 

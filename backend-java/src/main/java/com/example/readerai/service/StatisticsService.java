@@ -61,16 +61,12 @@ public class StatisticsService {
             wpmSums.merge(participantId, attempt.getWpm().floatValue(), Float::sum);
             accuracySums.merge(participantId, attempt.getAccuracy().floatValue(), Float::sum);
 
-            // averageStressAccuracy рахуємо лише по завершених (DONE) спробах —
-            // шар перевірки наголосу асинхронний і не завжди ще готовий/вдалий
-            // (PENDING/PROCESSING/FAILED/NOT_APPLICABLE не incrementують).
             if (attempt.getStressStatus() == StressStatus.DONE && attempt.getStressAccuracy() != null) {
                 stats.setStressCheckedAttemptsCount(stats.getStressCheckedAttemptsCount() + 1);
                 stressAccuracySums.merge(participantId, attempt.getStressAccuracy().floatValue(), Float::sum);
             }
         }
 
-        // Оцінки по учню, від найновішої (спроби вже відсортовані за датою спадно).
         Map<Long, List<Integer>> gradesByParticipant = new HashMap<>();
         for (ReadingSpeedAttempt attempt : attempts) {
             if (attempt.getGrade() != null) {
@@ -100,7 +96,6 @@ public class StatisticsService {
             }
         }
 
-        // Рейтинг за середньою оцінкою; учні без оцінок — наприкінці, за темпом.
         result.sort(Comparator
                 .comparing(ReadingSpeedStatsByParticipant::getAverageGrade, Comparator.nullsLast(Comparator.reverseOrder()))
                 .thenComparing(ReadingSpeedStatsByParticipant::getAverageWpm, Comparator.reverseOrder()));
@@ -108,10 +103,6 @@ public class StatisticsService {
         return result;
     }
 
-    // Часовий ряд ОДНОГО учня (не всіх одразу, на відміну від
-    // getReadingSpeedStats) — для графіка "3 лінії по днях" на екрані
-    // статистики; той самий ownership-check, що й
-    // ReadingSpeedAttemptService.getHistory.
     public List<ReadingSpeedDailyStats> getReadingSpeedDailyStats(Long participantId) {
         participantService.findVisible(participantId);
 

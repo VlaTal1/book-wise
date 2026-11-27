@@ -28,6 +28,5 @@ public class ParticipantDTO extends AuditDTO {
 
     private String classroomName;
 
-    // Локальний учень (без акаунта, читає з телефона вчителя).
     private boolean local;
 }

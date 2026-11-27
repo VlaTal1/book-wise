@@ -18,14 +18,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
 
-/**
- * Режим учня на телефоні вчителя: запит із заголовком X-Act-As-Participant
- * виконується від імені локального учня (без власного акаунта), якщо
- * автентифікований користувач — вчитель класу цього учня. Підміняємо
- * principal на синтетичний userId учня — далі весь код (getCurrent,
- * перевірки доступу до книг, прогресу, тестів, читання) працює так, наче
- * учень увійшов сам, і вчительські дії в цьому режимі недоступні.
- */
 public class ActAsStudentFilter extends OncePerRequestFilter {
 
     public static final String HEADER = "X-Act-As-Participant";

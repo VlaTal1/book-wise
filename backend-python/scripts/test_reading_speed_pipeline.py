@@ -56,7 +56,7 @@ def main():
     print(f"Слів поза словником моделі: {not_in_vocab}\n")
 
     pcm = load_pcm16_16k_mono(AUDIO_PATH)
-    chunk_size = int(SAMPLE_RATE * 2 * CHUNK_MS / 1000)  # 2 байти на семпл (PCM16)
+    chunk_size = int(SAMPLE_RATE * 2 * CHUNK_MS / 1000)
 
     session = ReadingSpeedSession(session_id="pipeline-test", user_id="test-user", reference=reference)
 

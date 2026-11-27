@@ -28,8 +28,6 @@ const BurgerMenu: React.FC<Props> = ({isOpen, onClose, onLogout}) => {
     const version = Constants.expoConfig?.version;
     const buildNumber = Application.nativeBuildVersion;
 
-    // Меню (RN Modal) малюється під системними панелями (edge-to-edge),
-    // тож відступаємо від статус-бару зверху й панелі навігації знизу.
     const insets = useSafeAreaInsets();
 
     const userInitial = useMemo(() => {
@@ -54,7 +52,6 @@ const BurgerMenu: React.FC<Props> = ({isOpen, onClose, onLogout}) => {
             onSwipeComplete={onClose}
             propagateSwipe={true}
             statusBarTranslucent
-            // Пропс RN Modal, якого немає в типах react-native-modal (передається далі як є).
             {...(Platform.OS === "android" ? {navigationBarTranslucent: true} : {})}
             deviceHeight={Dimensions.get("screen").height}
         >
@@ -76,7 +73,6 @@ const BurgerMenu: React.FC<Props> = ({isOpen, onClose, onLogout}) => {
                 }}
             >
                 <YStack gap={24} flex={1}>
-                    {/* Header Row */}
                     <XStack justifyContent="space-between" alignItems="center">
                         <CustomText size="h3Medium" color="$gray-20">
                             {i18n.t("menu")}
@@ -97,7 +93,6 @@ const BurgerMenu: React.FC<Props> = ({isOpen, onClose, onLogout}) => {
                         </TouchableOpacity>
                     </XStack>
 
-                    {/* User Profile Card */}
                     <XStack
                         backgroundColor="$gray-93"
                         padding={16}
@@ -131,7 +126,6 @@ const BurgerMenu: React.FC<Props> = ({isOpen, onClose, onLogout}) => {
                     </XStack>
                 </YStack>
 
-                {/* Bottom Info and Logout */}
                 <YStack gap={16}>
                     <CustomText size="p3Light" textAlign="center" color="$gray-60">
                         {i18n.t("app_version", {version, build: buildNumber})}

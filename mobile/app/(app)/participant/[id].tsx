@@ -163,7 +163,6 @@ const ParticipantDetails = () => {
 
                 <YStack flex={1} paddingHorizontal={16} gap={24}>
                     
-                    {/* Participant Profile Card */}
                     <YStack
                         backgroundColor="#FFFFFF"
                         borderRadius={28}

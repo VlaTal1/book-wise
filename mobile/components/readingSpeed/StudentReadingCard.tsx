@@ -13,8 +13,6 @@ type Props = {
     onStart: () => void;
 };
 
-// Завдання від вчителя на екрані читання учня: що читати, скільки часу,
-// скільки спроб лишилося і найкраща оцінка.
 export const StudentReadingCard: FC<Props> = ({reading, onStart}) => {
     const used = reading.attemptsUsed ?? 0;
     const attemptsLeft = reading.maxAttempts === null ? null : Math.max(reading.maxAttempts - used, 0);

@@ -12,8 +12,6 @@ import {RoleProvider} from "@/hooks/roleContext";
 import {Provider} from "react-redux";
 import {store} from "@/store";
 
-// Root layout. Accessible for both authenticated and not users.
-// In future public pages should be added in app directory.
 export default function Root() {
     const colorScheme = useColorScheme();
 

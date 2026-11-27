@@ -13,9 +13,6 @@ import org.springframework.web.client.RestClientException;
 import java.util.List;
 import java.util.Map;
 
-// Синхронні виклики Python-сервісу (service-to-service, той самий внутрішній
-// API-ключ, що й у зворотному напрямку). Довгі задачі (генерація тестів) йдуть
-// через RabbitMQ, тут — лише швидкі запити, на які чекає вчитель.
 @Slf4j
 @Service
 public class PythonClient {
@@ -29,7 +26,6 @@ public class PythonClient {
         this.internalApiKey = internalApiKey;
     }
 
-    // Чистий текст сторінок startPage..endPage (з 1, включно), розбитий на абзаци.
     public List<String> getBookParagraphs(String fileName, int startPage, int endPage) {
         try {
             BookParagraphsDTO response = restClient.post()

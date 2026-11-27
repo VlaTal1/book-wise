@@ -11,8 +11,6 @@ const messages = {
 
 const i18n = new I18n(messages);
 
-// Українська за замовчуванням; ключі, яких ще немає в ua, беруться з en
-// (без цього i18n-js показує "[missing ...]").
 i18n.defaultLocale = "en";
 i18n.enableFallback = true;
 i18n.locale = "ua";

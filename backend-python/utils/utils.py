@@ -39,9 +39,6 @@ def split_text_into_parts(text: str, num_parts: int):
     return parts
 
 def get_json_from_response(text):
-    # Модель може згадати тег <json_format> у своїх міркуваннях до самого блоку
-    # відповіді, тому беремо текст між ОСТАННІМ відкривальним і останнім
-    # закривальним тегом, а не перший збіг.
     start, end = text.rfind("<json_format>"), text.rfind("</json_format>")
     if start != -1 and end > start:
         json_str = text[start + len("<json_format>"):end].strip()

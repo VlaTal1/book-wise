@@ -17,10 +17,6 @@ const formatTime = (seconds: number): string => {
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 };
 
-// Аудіо захищене (Bearer-токен, не публічний URL) — тому джерело для
-// useAudioPlayer резолвиться асинхронно через readingSpeedAttemptApi.
-// getAudioSource (уточнює токен + {uri, headers}), а не передається
-// напряму рядком.
 export const AudioPlayerBar = ({attemptId}: Props) => {
     const [source, setSource] = useState<AudioSource | undefined>(undefined);
     const [loadFailed, setLoadFailed] = useState(false);
@@ -28,10 +24,6 @@ export const AudioPlayerBar = ({attemptId}: Props) => {
     const player = useAudioPlayer(source);
     const status = useAudioPlayerStatus(player);
 
-    // Ширина смуги прогресу (для перетворення X дотику у частку 0..1) і
-    // "прев'ю" перемотки під час перетягування — доки палець на екрані,
-    // показуємо позицію дотику, а не status.currentTime (він оновлюється з
-    // затримкою і "смикав" би повзунок під час свайпу).
     const [trackWidth, setTrackWidth] = useState(0);
     const [seekPreview, setSeekPreview] = useState<number | null>(null);
 

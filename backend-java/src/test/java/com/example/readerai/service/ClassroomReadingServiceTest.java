@@ -89,8 +89,6 @@ class ClassroomReadingServiceTest {
         Participant vira = student(3, "Віра");
         Participant hlib = student(4, "Гліб");
         when(participantRepository.findByClassroom_IdOrderByName(1L)).thenReturn(List.of(anna, bohdan, vira, hlib));
-        // Анна: найкраща 6 з двох спроб; Богдан: 9 і ще одна спроба рахується;
-        // Віра: ще не читала; Гліб: спроба є, але оцінка ще рахується.
         when(readingSpeedAttemptRepository.findAllByClassroomReading_IdAndParticipant_Id(10L, 1L))
                 .thenReturn(List.of(attempt(11, 4, 50), attempt(12, 6, 60)));
         when(readingSpeedAttemptRepository.findAllByClassroomReading_IdAndParticipant_Id(10L, 2L))

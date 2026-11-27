@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// Фрагменти для читання на швидкість, призначені класу. Без класового
-// @RequestMapping — тут і /api/** (JWT), і /internal/** (API-ключ для Python).
 @RestController
 @RequiredArgsConstructor
 public class ClassroomReadingController {
@@ -25,7 +23,6 @@ public class ClassroomReadingController {
     @Value("${internal.api-key}")
     private String internalApiKey;
 
-    // Абзаци чистого тексту сторінок — вчитель обирає перший і останній.
     @GetMapping("/api/classrooms/{id}/reading-preview")
     public ResponseEntity<List<String>> preview(
             @PathVariable Long id,
@@ -52,13 +49,11 @@ public class ClassroomReadingController {
         return ResponseEntity.noContent().build();
     }
 
-    // Учень — завдання свого класу з використаними спробами й найкращою оцінкою.
     @GetMapping("/api/classroom-readings/my")
     public ResponseEntity<List<ClassroomReadingDTO>> getMine() {
         return ResponseEntity.ok(classroomReadingService.getForCurrentStudent());
     }
 
-    // Python на старті сесії читання: текст, ліміт часу; 409 — спроби вичерпано.
     @GetMapping("/internal/classroom-readings/{readingId}/session")
     public ResponseEntity<ReadingSessionDTO> getSession(
             @RequestHeader("X-Internal-Api-Key") String apiKey,

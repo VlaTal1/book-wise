@@ -83,14 +83,11 @@ const AddBookModal: FC<Props> = ({onClose, isOpen, onSave}) => {
         }
 
         try {
-            // Create a FormData object
             const formData = new FormData();
 
-            // Add title and author to FormData
             formData.append("title", data.name);
             formData.append("author", data.author);
 
-            // Get file URI and prepare for upload
             const fileUri = data.file.uri;
             const fileInfo = await FileSystem.getInfoAsync(fileUri);
 
@@ -99,15 +96,12 @@ const AddBookModal: FC<Props> = ({onClose, isOpen, onSave}) => {
                 return;
             }
 
-            // Fetch the file locally and convert it to a Blob
             const response = await fetch(fileUri);
             const rawBlob = await response.blob();
             const blob = new Blob([rawBlob], { type: data.file.mimeType || "application/octet-stream" });
 
-            // Create file object for FormData
             formData.append("file", blob, data.file.name);
 
-            // Upload the book
             await uploadBookApi.execute({formData}).then(onSave);
 
         } catch (error) {
@@ -129,19 +123,15 @@ const AddBookModal: FC<Props> = ({onClose, isOpen, onSave}) => {
 
             const file = result.assets[0];
 
-            // Check if the file is PDF or EPUB
             const fileType = file.mimeType?.toLowerCase();
             if (fileType !== "application/pdf" && fileType !== "application/epub+zip") {
-                // Handle invalid file type
                 console.log("Invalid file type. Please select PDF or EPUB file.");
                 return;
             }
 
-            // Set the file in the form
             setValue("file", file, {shouldDirty: true});
             setSelectedFileName(file.name);
 
-            // If book name is empty, use the filename (without extension) as default
             if (isBlank(formValues.name)) {
                 const nameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
                 setValue("name", nameWithoutExtension, {shouldDirty: true});
@@ -184,7 +174,6 @@ const AddBookModal: FC<Props> = ({onClose, isOpen, onSave}) => {
                 ) : (
                     <ScrollView contentContainerStyle={{flexGrow: 1}} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
                         <YStack gap={12}>
-                            {/* Book Name */}
                             <LabelledInput label={i18n.t("name")} htmlFor="name">
                                 <Controller
                                     control={control}
@@ -207,7 +196,6 @@ const AddBookModal: FC<Props> = ({onClose, isOpen, onSave}) => {
                                 />
                             </LabelledInput>
 
-                            {/* Author */}
                             <LabelledInput label={i18n.t("author")} htmlFor="author">
                                 <Controller
                                     control={control}
@@ -230,7 +218,6 @@ const AddBookModal: FC<Props> = ({onClose, isOpen, onSave}) => {
                                 />
                             </LabelledInput>
 
-                            {/* Book */}
                             <YStack gap={8} width="100%">
                                 <CustomText
                                     size="p1Regular"

@@ -3,10 +3,6 @@ import {getAuthHeaders} from "@/auth/actingStudent";
 import {ReadingSpeedAttempt} from "@/types/ReadingSpeed";
 
 const readingSpeedAttemptApi = {
-    // Використовується екраном результатів читання для опитування статусу
-    // асинхронного шару перевірки наголосу (stressStatus), поки триває
-    // обробка на бекенді (app/(app)/readingSpeed/index.tsx), а також екраном
-    // деталей історії читання (app/(app)/readingHistory/[id].tsx).
     getById: async (id: number): Promise<ApiResponse<ReadingSpeedAttempt>> => {
         return apiRequest<ReadingSpeedAttempt>({
             path: `/api/reading-speed-attempts/${id}`,
@@ -14,7 +10,6 @@ const readingSpeedAttemptApi = {
         });
     },
 
-    // Дитячий режим — історія лише цієї дитини.
     getHistory: async (participantId: string): Promise<ApiResponse<ReadingSpeedAttempt[]>> => {
         return apiRequest<ReadingSpeedAttempt[]>({
             path: `/api/reading-speed-attempts/participant/${participantId}`,
@@ -22,8 +17,6 @@ const readingSpeedAttemptApi = {
         });
     },
 
-    // Батьківський режим — історія по УСІХ дітях поточного користувача
-    // одним списком (кожен елемент несе participantName).
     getAllHistory: async (): Promise<ApiResponse<ReadingSpeedAttempt[]>> => {
         return apiRequest<ReadingSpeedAttempt[]>({
             path: "/api/reading-speed-attempts",
@@ -31,8 +24,6 @@ const readingSpeedAttemptApi = {
         });
     },
 
-    // Результат тесту на розуміння після читання — потрібен для остаточної
-    // оцінки; у відповіді вже може бути grade, якщо наголос перевірено.
     submitQuizResult: async ({id, correct}: {
         id: number;
         correct: number;
@@ -55,9 +46,6 @@ const readingSpeedAttemptApi = {
         });
     },
 
-    // expo-audio (useAudioPlayer) приймає AudioSource у формі {uri, headers}
-    // — саме так передаємо Bearer-токен на захищений ендпоінт, окремого
-    // публічного/підписаного URL на аудіо немає.
     getAudioSource: async (id: number): Promise<{ uri: string; headers: Record<string, string> }> => {
         return {
             uri: `${getApiBaseUrl()}/api/reading-speed-attempts/${id}/audio`,

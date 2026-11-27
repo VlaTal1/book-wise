@@ -19,9 +19,6 @@ import JoinClassroomModal from "@/components/modal/join-classroom-modal";
 import {CustomText} from "@/components/CustomText";
 import {useRole} from "@/hooks/roleContext";
 
-// Вчитель: список його класів і створення нового.
-// Учень без класу: вступ за кодом (учня з класом головний екран веде
-// одразу на classroom/[id]).
 const Classrooms = () => {
     const router = useRouter();
     const {isTeacher, refreshProfile} = useRole();
@@ -64,7 +61,6 @@ const Classrooms = () => {
         fetchClassroomsApi.execute();
     }, [fetchClassroomsApi]);
 
-    // Перезавантажуємо при поверненні з екрана класу (міг бути видалений/змінений).
     useFocusEffect(useCallback(() => {
         invokeFetchClassrooms()
     }, []));

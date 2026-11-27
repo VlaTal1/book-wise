@@ -22,8 +22,6 @@ class BookParagraphsResponse(BaseModel):
     paragraphs: list[str]
 
 
-# Викликає лише Java (service-to-service) — той самий внутрішній API-ключ,
-# що й у зворотному напрямку (Python -> Java /internal/**).
 @router.post("/book-paragraphs", response_model=BookParagraphsResponse)
 async def book_paragraphs(
     request: BookParagraphsRequest,

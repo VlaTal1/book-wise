@@ -1,16 +1,9 @@
-// not_reached: еталонний текст навмисно довший (300-340 слів, запас на темп
-// читання), ніж дитина встигає прочитати за виділену хвилину — "хвіст", до
-// якого сесія не дійшла, не помилка читання і виключений з метрики точності
-// (ReadingSpeedMetrics.total_words на бекенді враховує лише прочитане).
 export type WordStatus = "correct" | "error" | "skipped" | "not_in_vocabulary" | "not_reached";
 
 export interface ReferenceWord {
     index: number;
     word: string;
     in_vocabulary: boolean;
-    // Оригінальний фрагмент тексту (регістр + пунктуація одразу за словом,
-    // напр. "музики." чи "такої,") — саме це рендериться на екрані читання;
-    // word (нормалізоване, без пунктуації) — лише для внутрішньої логіки.
     display: string;
 }
 
@@ -19,10 +12,7 @@ export interface ReferenceTextMessage {
     text_id: string;
     title: string;
     words: ReferenceWord[];
-    // Ліміт часу на читання: 60 с у вільному тренуванні, у завданні класу —
-    // як задав вчитель; null — без ліміту (читати до кінця фрагмента).
     time_limit_seconds?: number | null;
-    // Завдання класу, якщо читається призначений фрагмент.
     assignment_id?: number | null;
 }
 
@@ -30,8 +20,6 @@ export interface WordEventMessage {
     type: "word_event";
     index: number;
     status: WordStatus;
-    // Чорновий прогноз, ще не підтверджений (може бути перезаписаний пізніше
-    // тим самим index'ом з tentative=false) — рендериться менш насичено.
     tentative: boolean;
 }
 
@@ -46,10 +34,6 @@ export interface ReadingSpeedMetrics {
     accuracy: number;
 }
 
-// Один варіант відповіді невеликого тесту на розуміння прочитаного
-// (генерується на Python одразу в "result", services/comprehension_quiz.py)
-// — ефемерний, ніде не персистується, тому без id/selected (на відміну від
-// types/Answer.ts, який належить "великим" тестам книги).
 export interface ComprehensionQuizAnswer {
     answer: string;
     correct: boolean;
@@ -65,26 +49,14 @@ export interface ResultMessage {
     type: "result";
     text_id: string;
     metrics: ReadingSpeedMetrics;
-    // Id збереженого ReadingSpeedAttempt у Java — використовується для
-    // опитування статусу окремого (асинхронного) шару перевірки наголосу,
-    // див. StressStatus / readingSpeedAttemptApi. Відсутній, якщо збереження
-    // в Java не вдалося — тоді шар наголосу теж не запускається на бекенді.
     attempt_id: number | null;
-    // 1-3 питання (кількість обирає AI сам залежно від уривка) — null, якщо
-    // прочитаний фрагмент закороткий для тесту або генерація не вдалася.
     quiz: ComprehensionQuizQuestion[] | null;
 }
 
-// Читання завершено (стоп, таймер або дочитано до кінця), сервер рахує
-// результат — "result" прийде пізніше (після перевірки замін, тесту на
-// розуміння й збереження в Java).
 export interface ProcessingMessage {
     type: "processing";
 }
 
-// Тест на розуміння приходить окремо, щойно згенерований — раніше за
-// "result", бо перевірка замін (Moonshine) триває довше. Порожній список —
-// тесту не буде (уривок закороткий або генерація не вдалася).
 export interface QuizMessage {
     type: "quiz";
     questions: ComprehensionQuizQuestion[];
@@ -92,14 +64,8 @@ export interface QuizMessage {
 
 export type ReadingSpeedServerMessage = ReferenceTextMessage | WordEventMessage | ProcessingMessage | QuizMessage | ResultMessage;
 
-// Рахується ПІСЛЯ основної сесії читання (потрібен повний аудіофайл) —
-// продовжується в фоні на бекенді, навіть якщо користувач покинув екран
-// результатів або застосунок; мобілка лише опитує стан.
 export type StressStatus = "PENDING" | "PROCESSING" | "DONE" | "FAILED" | "NOT_APPLICABLE";
 
-// Поля саме в snake_case — це сирий JSON з Python-моделі (models/stress.py,
-// StressWordVerdict), Java зберігає і повертає stressWordsJson як є, не
-// перейменовуючи ключі під камелкейс (на відміну від решти полів DTO).
 export interface StressWordVerdict {
     index: number;
     word: string;
@@ -112,9 +78,6 @@ export interface StressWordVerdict {
 export interface ReadingSpeedAttempt {
     id: number;
     participantId: number;
-    // Заповнено лише в елементах списку "усі мої діти" (батьківський режим
-    // історії, readingSpeedAttemptApi.getAllHistory) — щоб показати, чия це
-    // спроба, коли список змішує кількох дітей.
     participantName: string | null;
     textId: string;
     totalWords: number;
@@ -125,43 +88,28 @@ export interface ReadingSpeedAttempt {
     durationSeconds: number;
     wpm: number;
     accuracy: number;
-    // JSON-масив WordEventRecord (index+status) — розпізнаний результат.
     wordsJson: string;
-    // JSON-масив ReferenceWord — сам еталонний текст (з display для показу),
-    // без нього wordsJson не можна перетворити на кольоровий текст.
     referenceWordsJson: string | null;
     stressStatus: StressStatus;
-    // 0-100, best-effort (кілька грубих етапів пайплайну forced alignment,
-    // не гранулярний прогрес) — може бути відсутнім навіть у PROCESSING.
     stressProgress: number | null;
     stressAccuracy: number | null;
     stressCheckedWords: number | null;
     stressCorrectWords: number | null;
     stressWordsJson: string | null;
     stressError: string | null;
-    // MinIO object key — присутній, лише якщо завантаження аудіо в MinIO
-    // вдалося (services/reading_speed_session.py, Python); якщо null, плеєр
-    // в історії не показуємо.
     audioFileName: string | null;
-    // Норма темпу класу на момент спроби.
     targetWpm: number | null;
-    // Тест на розуміння: кількість питань (0 — тесту не було) і правильних
-    // відповідей (null — учень ще не надіслав результат).
     quizTotal: number | null;
     quizCorrect: number | null;
-    // Оцінка 0-12 — лише остаточна (після перевірки наголосу й тесту), до того null.
-    // Складові по 0-5; comprehensionScore null — тесту не було.
     grade: number | null;
     speedScore: number | null;
     pronunciationScore: number | null;
     comprehensionScore: number | null;
-    // Назва завдання класу (задана вчителем або назва книги); null — вільне тренування.
     classroomReadingTitle?: string | null;
     createdAt: string;
     updatedAt: string;
 }
 
-// Один елемент розпарсеного wordsJson.
 export interface WordEventRecord {
     index: number;
     status: WordStatus;

@@ -23,22 +23,11 @@ import {ComprehensionQuizQuestion, ReadingSpeedMetrics, ReferenceWord, StressSta
 import {formatGrade, GradeScores, pickGradeScores} from "@/constants/readingGrade";
 import {MetricLine, ScoreSection} from "@/components/readingSpeed/ScoreSection";
 
-// Скільки чекати між опитуваннями стану шару перевірки наголосу — forced
-// alignment триває секунди, не мілісекунди (docs/reading-speed-implementation-
-// overview.md), тому частіше опитувати немає сенсу.
 const STRESS_POLL_INTERVAL_MS = 3000;
 const STRESS_TERMINAL_STATUSES: StressStatus[] = ["DONE", "FAILED", "NOT_APPLICABLE"];
 
-// Вільне тренування: уривок (~300-340 слів, services/book_excerpt.py на боці
-// Python) явно довший за час, який дитина встигає прочитати вголос за
-// хвилину — це навмисно: скільки встигла прочитати, стільки й враховується
-// в метриці. У завданні класу ліміт задає вчитель (або без ліміту).
 const READING_TIME_LIMIT_SECONDS = 60;
 
-// processing — читання вже завершено, сервер ще рахує результат (перевірка
-// замін Moonshine, тест на розуміння, збереження в Java).
-// quiz — тест на розуміння приходить раніше за результат: учень проходить
-// його, поки триває перевірка замін, і лише потім бачить результати.
 type Phase = "idle" | "connecting" | "reading" | "processing" | "quiz" | "finished";
 
 const ReadingSpeed = () => {
@@ -46,10 +35,6 @@ const ReadingSpeed = () => {
     const {studentId} = useRole();
 
     const [phase, setPhaseState] = useState<Phase>("idle");
-    // Колбеки сокета створюються один раз у handleStart — актуальну фазу
-    // читаємо через ref. Оновлюємо його одразу разом зі state, а не в
-    // useEffect: "result" може прийти через мілісекунди після "quiz" (коли
-    // Moonshine впорався швидше за генерацію тесту), ще до рендера.
     const phaseRef = useRef<Phase>("idle");
     const setPhase = (next: Phase) => {
         phaseRef.current = next;
@@ -62,31 +47,22 @@ const ReadingSpeed = () => {
     const [metrics, setMetrics] = useState<ReadingSpeedMetrics | null>(null);
     const [quiz, setQuiz] = useState<ComprehensionQuizQuestion[] | null>(null);
     const [quizScore, setQuizScore] = useState<number | null>(null);
-    // Стан сесії для колбеків сокета й завершення тесту (замикання не бачать
-    // свіжий state).
     const resultReceivedRef = useRef(false);
     const quizReceivedRef = useRef(false);
     const socketClosedRef = useRef(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    // Окремий (асинхронний, рахується в фоні на бекенді) шар перевірки
-    // наголосу — attemptId приходить у "result", далі мобілка лише опитує
-    // Java за станом. Якщо користувач покине цей екран, поллінг зупиниться
-    // (див. cleanup), але сама обробка на бекенді триватиме незалежно.
     const [attemptId, setAttemptId] = useState<number | null>(null);
     const [stressStatus, setStressStatus] = useState<StressStatus | null>(null);
     const [stressProgress, setStressProgress] = useState<number | null>(null);
     const [stressAccuracy, setStressAccuracy] = useState<number | null>(null);
-    // Остаточна оцінка 1-10 рахується в Java, коли готові і наголос, і тест.
     const [gradeScores, setGradeScores] = useState<GradeScores | null>(null);
     const grade = gradeScores?.grade ?? null;
     const [quizSubmitted, setQuizSubmitted] = useState(false);
 
     const [secondsLeft, setSecondsLeft] = useState(READING_TIME_LIMIT_SECONDS);
-    // null — без ліміту: показуємо, скільки часу минуло, і не зупиняємо самі.
     const [timeLimit, setTimeLimit] = useState<number | null>(READING_TIME_LIMIT_SECONDS);
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
-    // Завдання від вчителя (фрагменти класу).
     const [assignments, setAssignments] = useState<ClassroomReading[]>([]);
     const [assignmentsLoading, setAssignmentsLoading] = useState(false);
 
@@ -108,10 +84,6 @@ const ReadingSpeed = () => {
         }
     };
 
-    // Хвилина на читання — скільки встигла дитина, стільки й враховується
-    // (постановка задачі). По закінченню часу завершуємо сесію так само, як
-    // і по кнопці "Стоп" (handleStop): сервер сам фіналізує розпізнане на
-    // цей момент і надішле "result".
     const startReadingTimer = (limit: number | null) => {
         stopReadingTimer();
         setTimeLimit(limit);
@@ -168,10 +140,6 @@ const ReadingSpeed = () => {
         return cleanup;
     }, []);
 
-    // Завершення сесії детектує сервер (навіть якщо останні кілька слів ще не
-    // "дозріли" через TAIL_HOLDBACK) і сам шле "result" — клієнту достатньо
-    // просто чекати onResult, окремий client-side автостоп не потрібен.
-
     const onCancel = () => {
         cleanup();
         router.back();
@@ -191,15 +159,12 @@ const ReadingSpeed = () => {
         setAssignmentsLoading(false);
     };
 
-    // Список завдань оновлюємо щоразу, як повертаємось до вибору (після
-    // спроби змінилися використані спроби й найкраща оцінка).
     useEffect(() => {
         if (phase === "idle" && studentId) {
             loadAssignments();
         }
     }, [phase, studentId]);
 
-    // assignment — фрагмент, призначений класу; без нього — вільне тренування.
     const handleStart = async (assignment?: ClassroomReading) => {
         if (!studentId) {
             return;
@@ -243,8 +208,6 @@ const ReadingSpeed = () => {
                         setStatuses((prev) => ({...prev, [event.index]: event.status}));
                     }
                 },
-                // Сервер сам завершив читання (напр. дочитано до кінця) —
-                // одразу показуємо екран результатів у стані обробки.
                 onProcessing: () => {
                     stopReadingTimer();
                     stopAudioStream();
@@ -262,14 +225,11 @@ const ReadingSpeed = () => {
                     stopReadingTimer();
                     stopAudioStream();
                     setMetrics(result.metrics);
-                    // Старий Python-сервіс шле тест лише в "result" — тоді
-                    // показуємо його зараз, перед результатами.
                     if (!quizReceivedRef.current && result.quiz && result.quiz.length > 0) {
                         quizReceivedRef.current = true;
                         setQuiz(result.quiz);
                         setPhase("quiz");
                     } else if (phaseRef.current !== "quiz") {
-                        // Учень ще проходить тест — результати покажемо після нього.
                         setPhase("finished");
                     }
                     if (result.attempt_id !== null) {
@@ -284,8 +244,6 @@ const ReadingSpeed = () => {
                 onClose: () => {
                     socketRef.current = null;
                     socketClosedRef.current = true;
-                    // Сокет закрився, а результату так і не було — не лишаємо
-                    // користувача з вічним лоадером.
                     if (phaseRef.current === "processing" && !resultReceivedRef.current) {
                         setErrorMessage(i18n.t("reading_speed_processing_failed"));
                         setPhase("idle");
@@ -294,10 +252,8 @@ const ReadingSpeed = () => {
             }, assignment?.id);
 
             setReferenceWords(reference.words);
-            // У завданні класу — назва від вчителя (якщо задана), інакше назва тексту.
             setReferenceTitle(assignment?.name || reference.title);
             setPhase("reading");
-            // Старий Python-сервіс ліміт не надсилає — тоді стандартна хвилина.
             startReadingTimer(reference.time_limit_seconds !== undefined ? reference.time_limit_seconds : READING_TIME_LIMIT_SECONDS);
 
             startAudioStream((chunk) => {
@@ -311,8 +267,6 @@ const ReadingSpeed = () => {
         }
     };
 
-    // Результат тесту відправляємо, щойно відомі і бал, і attemptId (вони
-    // приходять у довільному порядку) — без нього Java не виставить оцінку.
     useEffect(() => {
         if (attemptId === null || quizScore === null || quizSubmitted) {
             return;
@@ -325,14 +279,10 @@ const ReadingSpeed = () => {
         });
     }, [attemptId, quizScore, quizSubmitted]);
 
-    // Оцінку ще чекаємо, поки не завершилась перевірка наголосу або не
-    // відправлено результат тесту (якщо тест був).
     const quizPending = (quiz?.length ?? 0) > 0 && !quizSubmitted;
     const stressPending = stressStatus === null || !STRESS_TERMINAL_STATUSES.includes(stressStatus);
     const gradePending = grade == null && attemptId !== null && (quizPending || stressPending);
 
-    // Після тесту — результати, якщо вони вже прийшли; інакше чекаємо їх на
-    // екрані обробки (або повідомляємо про помилку, якщо сокет уже закрито).
     const handleQuizFinish = (correctCount: number) => {
         setQuizScore(correctCount);
         if (resultReceivedRef.current) {
@@ -345,8 +295,6 @@ const ReadingSpeed = () => {
         }
     };
 
-    // Не чекаємо "processing" від сервера — користувач одразу бачить екран
-    // результатів з індикатором обробки.
     const handleStop = () => {
         stopReadingTimer();
         stopAudioStream();

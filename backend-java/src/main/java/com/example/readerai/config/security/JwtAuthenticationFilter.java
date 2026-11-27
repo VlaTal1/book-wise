@@ -69,12 +69,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = authHeader.substring(7); // Убираем "Bearer "
+        String token = authHeader.substring(7);
 
         try {
             JWTClaimsSet claims = jwtProcessor.process(token, null);
 
-            String userId = claims.getSubject(); // Получаем user ID
+            String userId = claims.getSubject();
             log.debug("JWT validated successfully for user: {}", userId);
 
             User user = new User(userId, "", Collections.emptyList());

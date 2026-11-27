@@ -25,17 +25,9 @@ logger = logging.getLogger(__name__)
 
 _running_tasks: set = set()
 
-# "aligning" (20%) — це фактично весь час forced alignment (subprocess
-# `mfa align`, секунди-десятки секунд на файл), а сам MFA не дає жодного
-# проміжного прогресу. Без цього тікера мобілка (опитує раз в
-# STRESS_POLL_INTERVAL_MS=3с, mobile/readingSpeed/index.tsx) бачить прогрес-
-# бар "застряглим" на 20% майже весь час обробки, а потім 60/80/95/100%
-# проскакують за долі секунди між двома опитуваннями. Тікер лише імітує
-# плавне заповнення — реальний прогрес (extracting_features/scoring/
-# finalizing) все одно приходить з check_stress_in_recording і має пріоритет.
 _PROGRESS_TICK_SECONDS = 2
 _PROGRESS_TICK_STEP = 5
-_PROGRESS_TICK_CAP = 55  # лишає запас під реальні 60/80/95, щоб не було стрибка назад
+_PROGRESS_TICK_CAP = 55
 
 
 def schedule_stress_check(attempt_id: int, session_id: str, audio_path: Path, reference_words: list[str]) -> None:
@@ -48,8 +40,6 @@ async def _tick_progress(attempt_id: int, progress_state: dict) -> None:
     try:
         while progress_state["value"] < _PROGRESS_TICK_CAP:
             await asyncio.sleep(_PROGRESS_TICK_SECONDS)
-            # Реальний прогрес (on_progress у _process) міг уже піти вперед,
-            # поки ми спали — тоді просто зупиняємось, аби не відкотити назад.
             if progress_state["value"] >= _PROGRESS_TICK_CAP:
                 return
             progress_state["value"] = min(_PROGRESS_TICK_CAP, progress_state["value"] + _PROGRESS_TICK_STEP)

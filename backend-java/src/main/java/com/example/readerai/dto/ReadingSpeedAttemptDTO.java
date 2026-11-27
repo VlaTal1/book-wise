@@ -19,9 +19,6 @@ public class ReadingSpeedAttemptDTO extends AuditDTO {
 
     private Long participantId;
 
-    // Заповнюється лише конвертером у toDTO() (для списку історії в
-    // режимі батьків, де один список змішує кількох дітей) — Python його
-    // не надсилає і не читає, DTO лише читається на це поле.
     private String participantName;
 
     private String textId;
@@ -42,8 +39,6 @@ public class ReadingSpeedAttemptDTO extends AuditDTO {
 
     private Double accuracy;
 
-    // Пословний результат як сирий JSON-масив (Python вже формує його готовим,
-    // Java лише зберігає і повертає, не парсячи структуру).
     private String wordsJson;
 
     @Builder.Default
@@ -79,9 +74,7 @@ public class ReadingSpeedAttemptDTO extends AuditDTO {
 
     private Integer comprehensionScore;
 
-    // Фрагмент, призначений класу (надсилає Python); null — вільне тренування.
     private Long classroomReadingId;
 
-    // Назва завдання для історії: задана вчителем або назва книги; null — вільне тренування.
     private String classroomReadingTitle;
 }

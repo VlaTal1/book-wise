@@ -13,10 +13,6 @@ import SimpleReadingStatistics from "@/components/statistics/SimpleReadingStatis
 import ReadingSpeedStatistics from "@/components/statistics/ReadingSpeedStatistics";
 import {READING_TESTS_ENABLED} from "@/constants/features";
 
-// Два незалежних розділи статистики — "просте" читання (оцінки за тести,
-// сторінки/час, ReadingSession) і читання на швидкість (WPM/точність/
-// наголос, ReadingSpeedAttempt) — кожен зі своїми внутрішніми вкладками,
-// див. components/statistics/{SimpleReadingStatistics,ReadingSpeedStatistics}.
 const StatisticsView = () => {
     const router = useRouter();
 
@@ -74,7 +70,6 @@ const StatisticsView = () => {
                                 {currentSection === 0 ? <SimpleReadingStatistics/> : <ReadingSpeedStatistics/>}
                             </>
                         ) : (
-                            // Поки тести приховані — лише статистика читання на швидкість.
                             <ReadingSpeedStatistics/>
                         )}
                     </YStack>

@@ -19,8 +19,6 @@ type Props = {
     classroomId: number;
 }
 
-// Учень без реєстрації: вчитель лише вводить ім'я, далі учень читає з
-// телефона вчителя (кнопка «Читати» біля учня на сторінці класу).
 const AddLocalStudentModal: FC<Props> = ({isOpen, onClose, onSave, classroomId}) => {
     const [name, setName] = useState("");
 

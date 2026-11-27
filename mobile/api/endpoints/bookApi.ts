@@ -24,7 +24,6 @@ const bookApi = {
             path: "/api/books/catalog",
         });
     },
-    // Додає книгу з каталогу до бібліотеки вчителя (повторний виклик повертає ту саму книгу).
     addCatalogBook: async (key: string): Promise<ApiResponse<Book>> => {
         return apiRequest<Book>({
             path: `/api/books/catalog/${encodeURIComponent(key)}`,

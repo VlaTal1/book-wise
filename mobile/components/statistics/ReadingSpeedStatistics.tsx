@@ -19,9 +19,6 @@ const cardShadow = {
     shadowOpacity: 1,
 };
 
-// Дочірній пікер для вкладки "По днях" — той самий підхід (горизонтальний
-// ряд "піллів"), що і в ReadingStatsPage.tsx (стара денна статистика
-// сторінок/часу читання), лише в Tamagui-стилі замість StyleSheet.
 const ParticipantPicker = ({participants, selectedId, onSelect}: {
     participants: { id: number; name: string }[];
     selectedId: number | null;
@@ -104,8 +101,6 @@ const ReadingSpeedStatistics = () => {
         } else if (innerTab === 1) {
             fetchParticipantsApi.execute();
         } else {
-            // Рейтинг бере оцінки зі статистики, а список учнів — щоб показати
-            // й тих, хто ще не читав.
             getReadingSpeedApi.execute();
             fetchParticipantsApi.execute();
         }

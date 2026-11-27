@@ -6,9 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-// Фінальний результат шару перевірки наголосу від Python — приходить
-// окремим internal-викликом, значно пізніше за сам ReadingSpeedAttempt
-// (потрібен повний forced alignment на аудіо сесії).
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,11 +20,7 @@ public class StressResultUpdateDTO {
 
     private Integer correctWords;
 
-    // Пословний вердикт як сирий JSON-масив (Java лише зберігає і повертає,
-    // не парсячи структуру — той самий підхід, що і wordsJson).
     private String wordsJson;
 
-    // Повідомлення про помилку, якщо status == FAILED (наприклад, MFA
-    // недоступний або forced alignment не зміг вирівняти аудіо).
     private String error;
 }

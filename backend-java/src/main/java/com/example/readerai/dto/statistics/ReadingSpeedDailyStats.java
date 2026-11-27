@@ -8,10 +8,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 
-// На відміну від ReadingSpeedStatsByParticipant (середнє по ВСІХ дітях
-// користувача одразу) — це часовий ряд ОДНІЄЇ дитини, для графіка
-// "3 лінії" (швидкість/точність читання/точність наголосу по днях) на
-// екрані статистики.
 @Getter
 @Setter
 @SuperBuilder
@@ -27,10 +23,7 @@ public class ReadingSpeedDailyStats {
 
     private float averageAccuracy;
 
-    // Null, якщо жодна спроба цього дня ще не має завершеного (DONE)
-    // результату шару перевірки наголосу.
     private Float averageStressAccuracy;
 
-    // null, якщо цього дня немає жодної оціненої спроби.
     private Float averageGrade;
 }

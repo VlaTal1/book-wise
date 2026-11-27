@@ -48,10 +48,8 @@ function useApi<T, P = void>(
     const [error, setError] = useState<ApiResponse<T> | null>(null);
     const [loading, setLoading] = useState(false);
 
-    // Reference to the current AbortController
     const abortControllerRef = useRef<AbortController | null>(null);
 
-    // Cleanup function to cancel any pending requests when the component unmounts
     useEffect(() => {
         return () => {
             if (options.abortOnUnmount && abortControllerRef.current) {
@@ -61,7 +59,6 @@ function useApi<T, P = void>(
         };
     }, [options.abortOnUnmount]);
 
-    // Use provided loading state setter if available
     const setLoadingState = options.setLoadingState || setLoading;
 
     const handleError = useCallback(
@@ -79,7 +76,6 @@ function useApi<T, P = void>(
             } else if (options.errorHandler) {
                 errorHandler = options.errorHandler;
             } else {
-                // Default error handler
                 errorHandler = {
                     title: i18n.t("error"),
                     message: i18n.t("please_try_again_later"),
@@ -88,7 +84,6 @@ function useApi<T, P = void>(
 
             const buttons: AlertButton[] = [];
 
-            // Add "try again" button if requested
             if (errorHandler.options?.tryAgain) {
                 buttons.push({
                     text: i18n.t("try_again"),
@@ -96,12 +91,10 @@ function useApi<T, P = void>(
                 });
             }
 
-            // Add custom buttons if provided
             if (errorHandler.options?.customButtons) {
                 buttons.push(...errorHandler.options.customButtons);
             }
 
-            // Add cancel button if none provided
             if (buttons.length === 0 || errorHandler.options?.cancel) {
                 buttons.push({
                     text: i18n.t("ok"),
@@ -133,10 +126,8 @@ function useApi<T, P = void>(
         [options],
     );
 
-    // Store last params to enable retry functionality
     let lastParams: P | undefined;
 
-    // Create debounced function if needed
     let debouncedExecute: ((params: P) => void) | null = null;
     if (options.debounceTime && options.debounceTime > 0) {
         // eslint-disable-next-line react-hooks/rules-of-hooks,react-hooks/exhaustive-deps
@@ -148,7 +139,6 @@ function useApi<T, P = void>(
         );
     }
 
-    // Function to cancel the current request
     const cancelRequest = useCallback(() => {
         if (abortControllerRef.current) {
             abortControllerRef.current.abort();
@@ -158,12 +148,10 @@ function useApi<T, P = void>(
 
     const execute = useCallback(
         async (params: P) => {
-            // Cancel previous request if option is enabled
             if (options.cancelPreviousRequest) {
                 cancelRequest();
             }
 
-            // Create a new AbortController for this request
             const abortController = new AbortController();
             abortControllerRef.current = abortController;
 
@@ -172,14 +160,12 @@ function useApi<T, P = void>(
             try {
                 setLoadingState(true);
 
-                // Include the signal in the API call parameters if the original params is an object
                 const paramsWithSignal = typeof params === "object" && params !== null
                     ? {...params as object, signal: abortController.signal} as P
                     : params;
 
                 const response = await apiCall(paramsWithSignal);
 
-                // If request was aborted, don't update state
                 if (abortController.signal.aborted) {
                     if (options.onCancel) {
                         options.onCancel();
@@ -209,7 +195,6 @@ function useApi<T, P = void>(
                     },
                 } as ApiResponse<T>);
             } finally {
-                // Clear the abortController reference if it's still the current one
                 if (abortControllerRef.current === abortController) {
                     abortControllerRef.current = null;
                 }
@@ -239,7 +224,6 @@ function useApi<T, P = void>(
     };
 }
 
-// Utility function for debouncing
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function debounce<T extends (...args: any[]) => any>(
     func: T,

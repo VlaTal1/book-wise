@@ -22,21 +22,15 @@ public class ReadingSpeedStatsByParticipant {
 
     private float averageAccuracy;
 
-    // Null, якщо жодна спроба ще не має завершеного (DONE) результату шару
-    // перевірки наголосу — окрема, асинхронна метрика, рахується не завжди
-    // одночасно з wpm/accuracy (див. services/stress_background.py, Python).
     private Float averageStressAccuracy;
 
     private int stressCheckedAttemptsCount;
 
-    // Оцінки 1-10 (лише остаточні). null, якщо жодної оціненої спроби ще немає.
     private Float averageGrade;
 
     private int gradedAttemptsCount;
 
     private Integer lastGrade;
 
-    // Середнє 3 останніх оцінок мінус середнє 3 попередніх: >0 — учень
-    // покращується. null, якщо оцінок замало для порівняння (<4).
     private Float gradeTrend;
 }

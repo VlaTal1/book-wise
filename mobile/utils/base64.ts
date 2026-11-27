@@ -1,8 +1,5 @@
 const BASE64_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-// react-native-live-audio-stream доставляє PCM-чанки як base64-рядки; тут
-// декодуємо їх у Uint8Array для відправки бінарним WS-фреймом. Без
-// зовнішньої залежності (Buffer доступний не в усіх RN-середовищах).
 export const base64ToUint8Array = (base64: string): Uint8Array => {
     const cleaned = base64.replace(/[^A-Za-z0-9+/]/g, "");
     const bytes: number[] = [];

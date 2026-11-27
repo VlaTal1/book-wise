@@ -18,7 +18,6 @@ from services.pdf_text import extract_pages
 
 logger = logging.getLogger(__name__)
 
-# Захист від випадкового «1–500»: попередній перегляд — це кілька сторінок.
 MAX_PREVIEW_PAGES = 15
 
 _SENTENCE_END = (".", "!", "?", "…", "»", ":", ";", ")")
@@ -51,8 +50,6 @@ def merge_page_paragraphs(pages: list[str]) -> list[str]:
         if not page_paragraphs:
             continue
         first = page_paragraphs[0]
-        # Абзац продовжується з попередньої сторінки: попередній не закінчився
-        # реченням, а цей починається з малої літери.
         if paragraphs and not paragraphs[-1].endswith(_SENTENCE_END) and first[:1].islower():
             paragraphs[-1] = f"{paragraphs[-1]} {first}"
             page_paragraphs = page_paragraphs[1:]

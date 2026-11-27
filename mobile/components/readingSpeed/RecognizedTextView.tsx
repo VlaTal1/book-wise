@@ -12,15 +12,9 @@ import {ReferenceWord, WordStatus} from "@/types/ReadingSpeed";
 interface Props {
     words: ReferenceWord[];
     statuses: Record<number, WordStatus>;
-    // index-и слів, де наголос перевірений і виявився неправильним (окремий
-    // шар поверх заливки точності читання — див. WordStatusLegendModal).
     stressIncorrectIndices?: Set<number>;
 }
 
-// Показ уже завершеної (історичної) сесії читання — на відміну від
-// HighlightedWordText (яка показує "наживо" з tentative-станом), тут усі
-// статуси вже остаточні, плюс підкреслення слів з неправильним наголосом.
-// Статус — колір фону під словом, текст завжди темний.
 export const RecognizedTextView = ({words, statuses, stressIncorrectIndices}: Props) => {
     return (
         <XStack flexWrap="wrap" columnGap={2} rowGap={4}>

@@ -79,10 +79,7 @@ def report_reading_speed_attempt(
         "wordsJson": json.dumps([e.model_dump(mode="json") for e in word_events], ensure_ascii=False),
         "referenceWordsJson": json.dumps([w.model_dump(mode="json") for w in reference.words], ensure_ascii=False),
         "audioFileName": audio_object_key,
-        # Скільки питань у тесті на розуміння (0 — тесту немає): Java чекає
-        # результат тесту від учня, перш ніж виставити остаточну оцінку.
         "quizTotal": quiz_total,
-        # Фрагмент, призначений класу (None — вільне тренування).
         "classroomReadingId": classroom_reading_id,
     }
 

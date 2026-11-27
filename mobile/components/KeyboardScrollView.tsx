@@ -12,8 +12,6 @@ import {
 
 type Props = {
     children: ReactNode;
-    // Зміна цього значення (висоти клавіатури) — сигнал перевірити, чи видно
-    // поле, в якому зараз курсор, і за потреби докрутити до нього.
     keyboardInset: number;
     contentStyle?: StyleProp<ViewStyle>;
     showsVerticalScrollIndicator?: boolean;
@@ -21,10 +19,6 @@ type Props = {
 
 const FOCUSED_INPUT_MARGIN = 24;
 
-// ScrollView для екранів/модалок з полями вводу:
-// - прокрутка або тап по порожньому місцю ховає клавіатуру;
-// - після появи клавіатури (коли батьківський контейнер уже зменшився)
-//   докручує вміст так, щоб поле з курсором було видно.
 const KeyboardScrollView = ({children, keyboardInset, contentStyle, showsVerticalScrollIndicator}: Props) => {
     const scrollRef = useRef<ScrollView>(null);
     const contentRef = useRef<View>(null);
@@ -51,14 +45,12 @@ const KeyboardScrollView = ({children, keyboardInset, contentStyle, showsVertica
                     scrollRef.current?.scrollTo({y: Math.max(0, y - FOCUSED_INPUT_MARGIN), animated: true});
                 }
             },
-            // Поле не всередині цього ScrollView (напр., у вкладеній модалці).
             () => undefined,
         );
     }, []);
 
     useEffect(() => {
         if (keyboardInset > 0) {
-            // Чекаємо, поки контейнер перерахує розмір під клавіатуру.
             const timer = setTimeout(scrollToFocusedInput, 120);
             return () => clearTimeout(timer);
         }

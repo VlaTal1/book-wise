@@ -44,8 +44,6 @@ const RoleCard = ({role, selected, onPress}: {
     );
 };
 
-// Показується одразу після реєстрації (або першого входу), поки в
-// користувача немає профілю на бекенді — він обирає, вчитель він чи учень.
 const RoleOnboarding = () => {
     const {createProfile} = useRole();
     const {signOut} = useAuth();

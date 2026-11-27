@@ -19,7 +19,6 @@ type Props = {
     onClose: () => void;
     isOpen: boolean;
     onSave: (classroom: Classroom) => void;
-    // Якщо передано — редагуємо цей клас замість створення нового.
     classroom?: Classroom;
 }
 
@@ -51,7 +50,6 @@ const CreateClassroomModal: FC<Props> = ({onClose, isOpen, onSave, classroom}) =
         });
     }, [reset, classroom]);
 
-    // У режимі редагування підставляємо поточні значення класу при відкритті.
     useEffect(() => {
         if (isOpen) {
             handleReset();

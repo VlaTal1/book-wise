@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-// Зведення по тесту класу для вчителя: стан генерації та скільки учнів пройшли.
 @Getter
 @Setter
 @SuperBuilder

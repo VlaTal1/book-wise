@@ -16,20 +16,16 @@ type Props = {
 export const formatTimeLimit = (seconds: number | null) =>
     seconds === null ? i18n.t("reading_no_time_limit") : i18n.t("minutes_short", {count: Math.round(seconds / 6) / 10});
 
-// «Сторінки 3 - 4 · Слів: 312» або «Випадкові уривки».
 export const formatFragment = (reading: ClassroomReading) =>
     reading.mode === "RANDOM"
         ? i18n.t("reading_random_excerpts")
         : `${i18n.t("pages_range", {start: reading.startPage, end: reading.endPage})} · ${i18n.t("reading_words_count", {count: reading.wordCount ?? 0})}`;
 
-// Заголовок завдання: назва від вчителя, а без неї — назва книги.
 export const readingTitle = (reading: ClassroomReading) => reading.name || reading.bookTitle;
 
 export const formatAttempts = (maxAttempts: number | null) =>
     maxAttempts === null ? i18n.t("reading_attempts_unlimited") : i18n.t("reading_attempts_value", {count: maxAttempts});
 
-// Фрагмент для читання на сторінці класу у вчителя: книга, сторінки, обсяг,
-// умови й скільки учнів уже читали. Натискання — результати по учнях.
 const ClassroomReadingCard: FC<Props> = ({reading, onPress, onDelete, disabled = false}) => (
     <YStack
         backgroundColor="#FFFFFF"

@@ -8,9 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-// Фрагмент для читання, призначений класу. Поля учня (attemptsUsed,
-// bestGrade) заповнюються лише в списку завдань самого учня; поля вчителя
-// (studentsCount, completedCount) — лише на сторінці класу.
 @Getter
 @Setter
 @SuperBuilder
@@ -22,7 +19,6 @@ public class ClassroomReadingDTO extends AuditDTO {
 
     private Long classroomId;
 
-    // Назва від вчителя; null — не задана.
     private String name;
 
     private ReadingMode mode;
@@ -37,7 +33,6 @@ public class ClassroomReadingDTO extends AuditDTO {
 
     private Integer wordCount;
 
-    // Початок тексту — щоб учень і вчитель впізнали фрагмент у списку.
     private String preview;
 
     private Integer timeLimitSeconds;
@@ -46,7 +41,6 @@ public class ClassroomReadingDTO extends AuditDTO {
 
     private Integer studentsCount;
 
-    // Скільки учнів мають хоча б одну спробу.
     private Integer completedCount;
 
     private Integer attemptsUsed;

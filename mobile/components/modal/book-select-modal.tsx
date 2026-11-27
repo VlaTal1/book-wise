@@ -17,9 +17,7 @@ type Props = {
     isOpen: boolean;
     onSelectId?: (bookId: string) => void;
     onSelectBook?: (book: Book) => void;
-    // Якщо передано — показуємо лише ці книги (напр. книги класу) замість усіх книг вчителя.
     books?: Book[];
-    // Показати також предзаготовлені книги з каталогу застосунку.
     showCatalog?: boolean;
 }
 
@@ -78,7 +76,6 @@ const BookSelectModal: FC<Props> = ({onClose, isOpen, onSelectId, onSelectBook, 
     const addCatalogBookApi = useApi(
         bookApi.addCatalogBook,
         {
-            // Книга з каталогу вже додана до бібліотеки вчителя — далі як звичайна книга.
             onSuccess: (book) => {
                 handleSelect(book);
             },
@@ -110,7 +107,6 @@ const BookSelectModal: FC<Props> = ({onClose, isOpen, onSelectId, onSelectBook, 
 
     const ownBooks = providedBooks ?? books;
 
-    // Каталожні книги, які вчитель уже додав, і так є серед «Моїх книг».
     const availableCatalog = useMemo(() => {
         const addedKeys = new Set(ownBooks.map((book) => book.catalogKey).filter(Boolean));
         return catalog.filter((book) => !addedKeys.has(book.key));

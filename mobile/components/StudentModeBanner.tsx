@@ -8,8 +8,6 @@ import {CustomText} from "@/components/CustomText";
 import i18n from "@/localization/i18n";
 import {useRole} from "@/hooks/roleContext";
 
-// Плашка над усіма екранами, поки вчитель дав телефон локальному учню:
-// видно, від чийого імені все відбувається, і як повернутися до вчителя.
 const StudentModeBanner = () => {
     const {actingStudent, exitStudentMode} = useRole();
     const router = useRouter();
@@ -26,9 +24,6 @@ const StudentModeBanner = () => {
                 {text: i18n.t("cancel"), style: "cancel"},
                 {
                     text: i18n.t("student_mode_exit"),
-                    // Спершу на головну (екрани учня закриваються ще з його
-                    // профілем), потім повернення профілю вчителя — див.
-                    // onStartStudentMode у classroom/[id].tsx.
                     onPress: async () => {
                         router.dismissTo("/");
                         await exitStudentMode();

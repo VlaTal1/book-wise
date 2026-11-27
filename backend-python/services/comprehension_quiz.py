@@ -10,9 +10,6 @@ from utils.prompt_utils import get_comprehension_quiz_prompt
 
 logger = logging.getLogger(__name__)
 
-# Нижче цього майже нема що питати (AI і сам здатен визнати текст "занадто
-# коротким", але для зовсім крихітних уривків не варто навіть витрачати виклик
-# моделі).
 MIN_WORDS_FOR_QUIZ = 15
 
 

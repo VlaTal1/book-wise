@@ -32,14 +32,6 @@ type ModalProps = {
 const SHEET_PADDING = 22;
 const KEYBOARD_GAP = 12;
 
-// Нижня модалка.
-// - Модалка (RN Modal) на Android з edge-to-edge малюється під системними
-//   панелями, тому знизу додаємо відступ на панель навігації (кнопки/жест),
-//   інакше вона перекриває кнопки модалки.
-// - Коли відкрита клавіатура, модалка розгортається на весь екран (до верху),
-//   а її низ (кнопки) стоїть одразу над клавіатурою; вміст між заголовком і
-//   кнопками прокручується, і поле з курсором докручується у видиму зону.
-// - Тап по порожньому місцю або прокрутка ховають клавіатуру.
 const BottomSheetModal: FC<ModalProps> = (
     {
         isOpen,
@@ -62,7 +54,6 @@ const BottomSheetModal: FC<ModalProps> = (
 ) => {
     const insets = useSafeAreaInsets();
     const {keyboardVisible, keyboardInset} = useKeyboardInset();
-    // Свайп униз конфліктує з прокруткою вмісту, поки відкрита клавіатура.
     const swipeDisabled = isSwipeDisable || keyboardVisible;
 
     const paddingTop = keyboardVisible
@@ -90,7 +81,7 @@ const BottomSheetModal: FC<ModalProps> = (
             onBackdropPress={onClose}
             onSwipeMove={(_percentageShown, gestureState) => {
                 const swipeDistance = Math.abs(gestureState.dy);
-                const THRESHOLD = 100; // Replace with your desired threshold
+                const THRESHOLD = 100;
                 if (!!onDiscard && swipeDistance > THRESHOLD) {
                     onDiscard();
                 }
@@ -100,10 +91,7 @@ const BottomSheetModal: FC<ModalProps> = (
             swipeDirection={swipeDisabled ? undefined : "down"}
             style={{justifyContent: "flex-end", margin: 0}}
             onBackButtonPress={onClose}
-            // Явно edge-to-edge, щоб відступи з useSafeAreaInsets збігалися з
-            // тим, де реально малюється модалка, а фон закривав увесь екран.
             statusBarTranslucent
-            // Пропс RN Modal, якого немає в типах react-native-modal (передається далі як є).
             {...(Platform.OS === "android" ? {navigationBarTranslucent: true} : {})}
             deviceHeight={Dimensions.get("screen").height}
         >

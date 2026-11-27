@@ -38,14 +38,10 @@ from utils.reference_text import normalize_text
 
 logger = logging.getLogger(__name__)
 
-# Сполучники, які в мовленні вільно чергуються і не є помилкою читання.
 EQUIVALENT_WORDS = {"й": "і"}
-# Whisper/Moonshine-подібні моделі погано працюють з довгими фрагментами
-# (feature extractor Whisper узагалі обрізає вхід до 30 с), тому запис
-# ріжеться по паузах на шматки не довші за це значення.
 MAX_SEGMENT_SECONDS = 25.0
 
-_moonshine = None  # (processor, model)
+_moonshine = None
 _lock = threading.Lock()
 
 
@@ -53,7 +49,6 @@ def canonical(words: list[str]) -> list[str]:
     return [EQUIVALENT_WORDS.get(w, w) for w in words]
 
 
-# ------------------------------------------------------------ Moonshine
 def load_model() -> None:
     """Завантажує Moonshine при старті застосунку. Відсутність torch/transformers
     або помилка завантаження не валить застосунок — гібрид просто вимикається."""
@@ -70,7 +65,7 @@ def load_model() -> None:
         model = MoonshineForConditionalGeneration.from_pretrained(settings.moonshine_model_id).eval()
         _moonshine = (processor, model)
         logger.info("Moonshine model loaded")
-    except Exception as e:  # ImportError, мережа, відсутня модель у кеші
+    except Exception as e:
         logger.warning(f"Substitution check disabled — Moonshine not available: {e}")
 
 
@@ -117,7 +112,6 @@ def transcribe_moonshine(pcm16: bytes) -> list[str]:
     return words
 
 
-# ------------------------------------------------------------ Vosk без граматики
 class OpenVoskWorker:
     """Другий розпізнавач Vosk (без граматики) на тій самій моделі, що працює в
     окремому потоці: чанки лише кладуться в чергу, тож обробка WS-повідомлень і
@@ -155,26 +149,7 @@ class OpenVoskWorker:
         self._queue.put(self._STOP)
 
 
-# ------------------------------------------------------------ правило гібриду
-# Обмеження правила, підібрані на реальних записях дітей з телефона (07.11.2026,
-# 11 спроб) і перевірені на recordings_v2, щоб не втратити знайдені помилки:
-#
-#                         recordings_v2:  знайдено   хибних/100 сл.   діти: додано/100 сл.
-#   без обмежень                          36/38      3,44             20,8
-#   з обмеженнями нижче                   36/38      2,87              0,1
-#
-# 1. Надійність запису. Якщо розпізнавач без граматики загалом погано чує цей
-#    запис (розходиться з текстом у > RELIABLE_MAX_MISMATCH слів), його думці
-#    про окремі слова не можна вірити, і перевірку для запису не застосовуємо.
-#    На recordings_v2 розходження 4–24 %, на дитячих записях з телефона — 25–64 %
-#    (шум, дитяче мовлення, архаїчний текст: "дививсь", "кав'ярня", "зурна").
-# 2. Контекст. Справжня помилка читання — одне неправильне слово серед нормально
-#    розпізнаних сусідів. Слово вважаємо помилкою за цим розпізнавачем, лише якщо
-#    щонайменше CONTEXT_MIN_MATCHES з CONTEXT_RADIUS сусідів з кожного боку
-#    він розпізнав правильно; у "кашi" (початок запису, шум) — не віримо.
-# 3. Короткі службові слова розпізнавачі без граматики найчастіше "ковтають",
-#    а для оцінювання читання вони майже не важливі — їх не перевіряємо.
-RELIABLE_MAX_MISMATCH = 0.25  # 0.30 пропускав запис 87 (30 %) з хибною "круту"; 0.20 губить 5 із 38
+RELIABLE_MAX_MISMATCH = 0.25
 CONTEXT_RADIUS = 2
 CONTEXT_MIN_MATCHES = 2
 FUNCTION_WORDS = frozenset({

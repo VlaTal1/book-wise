@@ -16,8 +16,6 @@ interface Props {
     onClose: () => void;
 }
 
-// Пояснення кольорової розмітки розпізнаного тексту — відкривається кнопкою
-// "?" на екрані деталей історії читання (app/(app)/readingHistory/[id].tsx).
 export const WordStatusLegendModal = ({isOpen, onClose}: Props) => {
     return (
         <BottomSheetModal

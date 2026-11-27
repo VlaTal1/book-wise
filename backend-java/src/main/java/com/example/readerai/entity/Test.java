@@ -56,7 +56,6 @@ public class Test extends Audit {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "test")
     private List<Question> questions;
 
-    // Тест класу, з якого створено цей тест учня (null для індивідуальних тестів).
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CLASSROOM_TEST_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_TEST_CLASSROOM_TEST"))
     private ClassroomTest classroomTest;

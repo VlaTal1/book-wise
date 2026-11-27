@@ -16,15 +16,12 @@ export type GradeBreakdownData = {
     quizCorrect: number | null | undefined;
 };
 
-// Одна плитка: назва показника зверху, бал «3/4» по центру, під ним — сирий
-// показник, з якого бал порахований (сл/хв, % правильно, відповіді тесту).
 const ScoreTile: FC<{
     label: string;
     score: number | null | undefined;
     metric: string;
     pending: boolean;
 }> = ({label, score, metric, pending}) => {
-    // Колір як у підсумкової оцінки, перерахований з 0-4 на 0-12.
     const colors = score != null ? gradeColors(score * (GRADE_MAX / GRADE_COMPONENT_MAX)) : null;
     return (
         <YStack
@@ -57,7 +54,6 @@ const ScoreTile: FC<{
     );
 };
 
-// Три складові оцінки читання на швидкість у картках результатів.
 export const GradeBreakdown: FC<{data: GradeBreakdownData; pending?: boolean}> = ({data, pending = false}) => {
     const hasQuiz = data.quizTotal != null && data.quizTotal > 0;
     return (

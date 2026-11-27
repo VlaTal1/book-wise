@@ -1,12 +1,9 @@
-// Shared avatar coloring for participant initials — cycles through the app's
-// five brand hues instead of an arbitrary palette, so avatars always match
-// the rest of the "Warm Reading Nook" design system.
 export const AVATAR_PALETTE = [
-    {bg: "#FBEAD9", text: "#A8451F"}, // terracotta
-    {bg: "#E1F0EA", text: "#255A50"}, // teal
-    {bg: "#F5E9F1", text: "#7C3D6A"}, // plum
-    {bg: "#FBF0D9", text: "#B07A1E"}, // gold
-    {bg: "#E7F3EA", text: "#2F6B45"}, // sage
+    {bg: "#FBEAD9", text: "#A8451F"},
+    {bg: "#E1F0EA", text: "#255A50"},
+    {bg: "#F5E9F1", text: "#7C3D6A"},
+    {bg: "#FBF0D9", text: "#B07A1E"},
+    {bg: "#E7F3EA", text: "#2F6B45"},
 ];
 
 export const getAvatarColor = (name: string | undefined) => {

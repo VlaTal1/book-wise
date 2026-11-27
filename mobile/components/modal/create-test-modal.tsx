@@ -21,7 +21,6 @@ type Props = {
     onSave: () => void;
     classroomId: number;
     classroomName: string;
-    // Тест можна створити лише по книгах, призначених цьому класу.
     books: Book[];
 }
 
@@ -167,7 +166,6 @@ const CreateTestModal: FC<Props> = ({onClose, isOpen, onSave, classroomId, class
                                 />
                             </LabelledInput>
 
-                            {/* Start Page */}
                             <LabelledInput label={i18n.t("start_page")} htmlFor="startPage">
                                 <Controller
                                     control={control}
@@ -190,7 +188,6 @@ const CreateTestModal: FC<Props> = ({onClose, isOpen, onSave, classroomId, class
                                 />
                             </LabelledInput>
 
-                            {/* End Page */}
                             <LabelledInput label={i18n.t("end_page")} htmlFor="endPage">
                                 <Controller
                                     control={control}
@@ -213,7 +210,6 @@ const CreateTestModal: FC<Props> = ({onClose, isOpen, onSave, classroomId, class
                                 />
                             </LabelledInput>
 
-                            {/* Questions Amount */}
                             <LabelledInput label={i18n.t("questions_amount")} htmlFor="questionsAmount">
                                 <Controller
                                     control={control}

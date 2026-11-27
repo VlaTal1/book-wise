@@ -17,6 +17,5 @@ public class ClassroomReadingResultsDTO {
 
     private ClassroomReadingDTO reading;
 
-    // Від найкращої оцінки до найгіршої; учні без оцінки — у кінці.
     private List<StudentReadingResultDTO> students;
 }

@@ -7,7 +7,6 @@ import lombok.Setter;
 
 import java.util.List;
 
-// Абзаци чистого тексту сторінок (відповідь Python /internal/book-paragraphs).
 @Getter
 @Setter
 @NoArgsConstructor

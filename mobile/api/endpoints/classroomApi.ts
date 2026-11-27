@@ -3,8 +3,6 @@ import {Classroom, ClassroomDetails, ClassroomTestRequest} from "@/types/Classro
 import {Test} from "@/types/Test";
 
 const classroomApi = {
-    // classroomId ігнорується — лише щоб сигнатура збігалася з updateClassroom
-    // (одна форма для створення й редагування).
     createClassroom: async ({name, targetWpm}: {
         classroomId?: string;
         name: string;
@@ -74,7 +72,6 @@ const classroomApi = {
             },
         });
     },
-    // Локальний учень без акаунта — читає з телефона вчителя.
     createLocalStudent: async ({classroomId, name}: {
         classroomId: string;
         name: string;
@@ -88,7 +85,6 @@ const classroomApi = {
             },
         });
     },
-    // Учня прибирають з класу; його спроби й тести лишаються в історії.
     removeLocalStudent: async ({classroomId, studentId}: {
         classroomId: string;
         studentId: string;
@@ -113,7 +109,6 @@ const classroomApi = {
             },
         });
     },
-    // Разом з тестами учнів, їхніми відповідями й оцінками.
     deleteTest: async ({classroomId, classroomTestId}: {
         classroomId: string;
         classroomTestId: string;

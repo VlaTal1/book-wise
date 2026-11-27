@@ -15,8 +15,6 @@ type Props = {
 } & GetProps<typeof ThemeableStack>;
 
 const TestButton: FC<Props> = ({test, onPress, disabled = false, ...props}) => {
-    // Питання генерує Python-сервіс асинхронно (RabbitMQ) — поки вони не
-    // готові, пройти тест неможливо.
     const isGenerating = test.generationStatus === "GENERATING";
 
     const statusDetails = useMemo(() => {

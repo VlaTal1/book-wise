@@ -135,7 +135,6 @@ const BookDetails = () => {
 
                 <YStack flex={1} paddingHorizontal={16} gap={24}>
                     
-                    {/* Book Cover Card */}
                     <YStack
                         backgroundColor="#FFFFFF"
                         borderRadius={28}
@@ -170,7 +169,6 @@ const BookDetails = () => {
                             </CustomText>
                         </YStack>
                         
-                        {/* Book Metadata Badge */}
                         <XStack
                             backgroundColor="#F3E7CE"
                             paddingHorizontal={10}

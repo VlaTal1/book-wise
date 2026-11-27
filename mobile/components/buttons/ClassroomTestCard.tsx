@@ -14,8 +14,6 @@ type Props = {
     disabled?: boolean;
 };
 
-// Тест класу на сторінці класу у вчителя: стан генерації, скільки учнів
-// пройшли, перегенерація (якщо генерація впала) і видалення.
 const ClassroomTestCard: FC<Props> = ({test, onRegenerate, onDelete, disabled = false}) => {
     const status = useMemo(() => {
         switch (test.generationStatus) {

@@ -10,15 +10,11 @@ interface RoleContextType {
     profile: Participant | null;
     isTeacher: boolean;
     isStudent: boolean;
-    // id профілю учня (для учня — завжди власний, у вчителя — null).
     studentId: string | null;
-    // Користувач зареєструвався в Supabase, але ще не обрав роль.
     needsOnboarding: boolean;
     isLoading: boolean;
     createProfile: (name: string, role: UserRole) => Promise<boolean>;
     refreshProfile: () => Promise<void>;
-    // Режим учня на телефоні вчителя: застосунок працює від імені локального
-    // учня (profile — його профіль), поки вчитель не вийде з режиму.
     actingStudent: Participant | null;
     startStudentMode: (student: Participant) => Promise<void>;
     exitStudentMode: () => Promise<void>;
@@ -44,7 +40,6 @@ export const useRole = (): RoleContextType => useContext(RoleContext);
 
 export const RoleProvider: React.FC<{ children: ReactNode }> = ({children}) => {
     const {user} = useAuth();
-    // Залежимо саме від id: об'єкт user змінюється при кожному оновленні токена.
     const userId = user?.id;
     const [profile, setProfile] = useState<Participant | null>(null);
     const [needsOnboarding, setNeedsOnboarding] = useState(false);
@@ -97,7 +92,6 @@ export const RoleProvider: React.FC<{ children: ReactNode }> = ({children}) => {
         await refreshProfile();
     }, [refreshProfile]);
 
-    // Вихід з акаунта — і з режиму учня.
     useEffect(() => {
         if (!userId) {
             setActingStudentId(null);

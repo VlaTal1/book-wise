@@ -28,19 +28,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * Фрагмент книги для читання на швидкість, призначений класу. Вчитель обирає
- * сторінки, бачить їх чистий текст абзацами (Python, services/pdf_text) і
- * позначає перший та останній абзац; ліміт часу й кількість спроб — за
- * бажанням (null — без обмежень). Спроби учнів — звичайні ReadingSpeedAttempt
- * з посиланням на завдання; рахуються лише збережені (завершені) спроби.
- */
 @Service
 @RequiredArgsConstructor
 public class ClassroomReadingService {
 
-    // Grammar Vosk — увесь фрагмент однією фразою; дуже довгий текст і не
-    // прочитати за урок, і граматика стає важкою.
     private static final int MAX_WORDS = 1500;
     private static final int MIN_TIME_LIMIT_SECONDS = 10;
     private static final int MAX_TIME_LIMIT_SECONDS = 60 * 60;
@@ -64,7 +55,6 @@ public class ClassroomReadingService {
 
     private final PythonClient pythonClient;
 
-    // Абзаци обраних сторінок — вчитель обирає з них початок і кінець фрагмента.
     public List<String> preview(Long classroomId, Long bookId, Integer startPage, Integer endPage) {
         findOwnedClassroom(classroomId);
         Book book = findClassroomBook(classroomId, bookId);
@@ -72,8 +62,6 @@ public class ClassroomReadingService {
         return pythonClient.getBookParagraphs(book.getFileName(), startPage, endPage);
     }
 
-    // Абзаци беремо заново на сервері, а не з запиту — у завданні завжди той
-    // самий чистий текст, що бачив вчитель у попередньому перегляді.
     public ClassroomReadingDTO create(Long classroomId, ClassroomReadingRequest request) {
         Classroom classroom = findOwnedClassroom(classroomId);
         if (request.getBookId() == null) {
@@ -127,14 +115,12 @@ public class ClassroomReadingService {
         return toTeacherDTO(reading);
     }
 
-    // Для сторінки класу у вчителя.
     public List<ClassroomReadingDTO> getForTeacher(Long classroomId) {
         return classroomReadingRepository.findByClassroom_IdOrderByCreatedAtDesc(classroomId).stream()
                 .map(this::toTeacherDTO)
                 .toList();
     }
 
-    // Завдання класу поточного учня — з його спробами та найкращою оцінкою.
     public List<ClassroomReadingDTO> getForCurrentStudent() {
         Participant student = participantService.requireStudent();
         if (student.getClassroom() == null) {
@@ -176,8 +162,6 @@ public class ClassroomReadingService {
                             .gradePending(attempts.stream().anyMatch(attempt -> attempt.getGrade() == null))
                             .build();
                 })
-                // Від найкращої оцінки до найгіршої; без оцінки — у кінці
-                // (спершу ті, хто вже читав, потім ті, хто ще ні).
                 .sorted(Comparator
                         .comparing(StudentReadingResultDTO::getBestGrade, Comparator.nullsLast(Comparator.reverseOrder()))
                         .thenComparing(StudentReadingResultDTO::getAttemptsCount, Comparator.reverseOrder())
@@ -190,19 +174,16 @@ public class ClassroomReadingService {
                 .build();
     }
 
-    // Спроби учнів лишаються в їхній історії, лише відв'язуються від завдання.
     @Transactional
     public void delete(Long classroomId, Long readingId) {
         detachAndDelete(findOwnedReading(classroomId, readingId));
     }
 
-    // При видаленні класу (ClassroomService.delete).
     @Transactional
     public void deleteAllForClassroom(Long classroomId) {
         classroomReadingRepository.findByClassroom_IdOrderByCreatedAtDesc(classroomId).forEach(this::detachAndDelete);
     }
 
-    // Python на старті сесії: чи може учень читати цей фрагмент і що саме.
     public ReadingSessionDTO getSession(Long readingId, Long participantId) {
         ClassroomReading reading = classroomReadingRepository.findById(readingId)
                 .orElseThrow(() -> new NotFoundException("Reading assignment not found"));
@@ -246,7 +227,6 @@ public class ClassroomReadingService {
         classroomReadingRepository.delete(reading);
     }
 
-    // Найкраща оцінена спроба; за рівної оцінки — вищий темп.
     private static Optional<ReadingSpeedAttempt> bestAttempt(List<ReadingSpeedAttempt> attempts) {
         return attempts.stream()
                 .filter(attempt -> attempt.getGrade() != null)
@@ -285,7 +265,6 @@ public class ClassroomReadingService {
                 .build();
     }
 
-    // Порожня назва — як не задана.
     private static String normalizeName(String name) {
         if (name == null || name.isBlank()) {
             return null;
@@ -317,7 +296,6 @@ public class ClassroomReadingService {
         return reading;
     }
 
-    // Як і тести, фрагмент можна взяти лише з книги, призначеної класу.
     private Book findClassroomBook(Long classroomId, Long bookId) {
         if (bookId == null || !classroomBookRepository.existsByClassroom_IdAndBook_Id(classroomId, bookId)) {
             throw new IllegalArgumentException("Book is not assigned to this classroom");

@@ -7,8 +7,6 @@ import {GRADE_COMPONENT_MAX} from "@/constants/readingGrade";
 
 const ACCENT = "#CB5A2E";
 
-// Блок одного показника оцінки: назва й бал «3/4» праворуч, під ними —
-// сирі показники, з яких цей бал порахований.
 export const ScoreSection: FC<{
     title: string;
     score: number | null | undefined;
@@ -36,7 +34,6 @@ export const ScoreSection: FC<{
     </YStack>
 );
 
-// Рядок сирого показника всередині блоку.
 export const MetricLine: FC<{ label: string; value: ReactNode }> = ({label, value}) => (
     <XStack justifyContent="space-between" alignItems="center">
         <CustomText size="p1Regular" color="$gray-40">

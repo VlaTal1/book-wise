@@ -18,7 +18,6 @@ type Props = {
     onClose: () => void;
     isOpen: boolean;
     onSave: (classroom: Classroom) => void;
-    // Учень уже в класі — вступ до нового замінить попередній.
     hasClassroom?: boolean;
 }
 

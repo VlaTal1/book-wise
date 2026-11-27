@@ -14,7 +14,6 @@ from services.stress import model_store as stress_model_store
 from services.test_generator import process_test_generation_request
 from services.vosk_service import load_model
 
-# Config logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -48,7 +47,6 @@ async def lifespan(app: FastAPI):
     await rabbitmq_consumer.stop_consuming()
 
 
-# Docs disabled: the API is exposed publicly via Cloudflare Tunnel
 app = FastAPI(
     title=settings.app_name,
     lifespan=lifespan,
@@ -70,7 +68,4 @@ app.include_router(reading_speed.router, prefix="/ws", tags=["reading-speed"])
 app.include_router(internal.router, prefix="/internal", tags=["internal"])
 
 if __name__ == "__main__":
-    # UVICORN_RELOAD=1 — автоперезапуск при зміні файлів (розробка). Для
-    # реального використання вимкнено: зміна будь-якого файлу посеред уроку
-    # перезапустила б сервер і обірвала всі сесії читання.
     uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=os.getenv("UVICORN_RELOAD") == "1")

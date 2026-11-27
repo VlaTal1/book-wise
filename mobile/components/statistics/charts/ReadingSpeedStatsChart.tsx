@@ -19,12 +19,6 @@ const CARD_SPACING = 30;
 const BAR_COLOR = "#CB5A2E";
 const BAR_COLOR_DIMMED = "#CB5A2E80";
 
-// Той самий "bar chart + горизонтальні картки, що гортаються" патерн, що й
-// AvgGradeChart — свідомо узгоджено, щоб екран статистики виглядав як одна
-// система, а не набір різних віджетів. На відміну від avgGrade (де колір
-// бару кодує "наскільки далеко від maxGrade"), для WPM немає усталеного
-// порогу "добре/погано", тому бар завжди одного кольору — лише виділений/
-// невиділений.
 const ReadingSpeedStatsChart: React.FC<Props> = ({data, height = 220, width = 300}) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const flatListRef = useRef<FlatList>(null);

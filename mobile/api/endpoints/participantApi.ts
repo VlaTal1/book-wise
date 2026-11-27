@@ -2,7 +2,6 @@ import apiRequest, {ApiResponse} from "@/api";
 import {Participant, UserRole} from "@/types/Paticipant";
 
 const participantApi = {
-    // 404 — користувач ще не обрав роль після реєстрації.
     fetchMe: async (): Promise<ApiResponse<Participant>> => {
         return apiRequest<Participant>({
             path: "/api/participant/me",
@@ -21,7 +20,6 @@ const participantApi = {
             },
         });
     },
-    // Вчитель — усі учні його класів, учень — лише він сам.
     fetchStudents: async (): Promise<ApiResponse<Participant[]>> => {
         return apiRequest<Participant[]>({
             path: "/api/participant/students",

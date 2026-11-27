@@ -11,7 +11,6 @@ import java.util.List;
 public interface ReadingSpeedAttemptRepository extends JpaRepository<ReadingSpeedAttempt, Long> {
     List<ReadingSpeedAttempt> findAllByParticipant_IdOrderByCreatedAtDesc(Long participantId);
 
-    // Історія одразу по кількох учнях (для вчителя — усі учні його класів).
     List<ReadingSpeedAttempt> findAllByParticipant_IdInOrderByCreatedAtDesc(Collection<Long> participantIds);
 
     List<ReadingSpeedAttempt> findAllByClassroomReading_Id(Long classroomReadingId);

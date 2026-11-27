@@ -27,8 +27,6 @@ const ReadingHistoryRow = ({attempt, onPress, onDelete}: {
     onPress: () => void;
     onDelete: () => void;
 }) => {
-    // Як на сторінці спроби: оцінки ще немає, бо рахується наголос або учень
-    // ще не відповів на тест.
     const gradePending = attempt.grade == null && (
         attempt.stressStatus === "PENDING" || attempt.stressStatus === "PROCESSING" ||
         (attempt.quizTotal != null && attempt.quizTotal > 0 && attempt.quizCorrect == null)
@@ -88,9 +86,6 @@ const ReadingHistoryRow = ({attempt, onPress, onDelete}: {
     );
 };
 
-// Історія читання ОДНІЄЇ дитини — для дитячого режиму це власна історія
-// (index.tsx одразу сюди редіректить), для батьківського — обраної зі
-// списку дітей дитини (app/(app)/readingHistory/index.tsx).
 const ParticipantReadingHistory = () => {
     const router = useRouter();
     const {participantId, participantName} = useLocalSearchParams();

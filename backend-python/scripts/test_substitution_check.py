@@ -27,7 +27,7 @@ from services.vosk_service import SAMPLE_RATE, load_model  # noqa: E402
 from utils.reference_text import build_reference_text  # noqa: E402
 
 DATA = ROOT.parent.parent.parent / "unik" / "diplom" / "diplom" / "master" / "recordings_v2"
-CHUNK_BYTES = 2048  # ~64 мс PCM16, як у мобільному застосунку
+CHUNK_BYTES = 2048
 
 
 def truth(name: str, n_words: int) -> set[int]:
@@ -51,14 +51,14 @@ def main():
     substitution_check.load_model()
     assert substitution_check.is_available(), "Moonshine не завантажився"
 
-    totals = {"grammar": [0, 0, 0], "hybrid": [0, 0, 0]}  # tp, fn, fp
+    totals = {"grammar": [0, 0, 0], "hybrid": [0, 0, 0]}
     words_total, chunk_times, post_times, durations = 0, [], [], []
     for wav in sorted((DATA / "wav").glob("*.wav")):
         tid = wav.stem.split("_")[1]
         raw = (DATA / "texts" / f"{tid}.txt").read_text(encoding="utf8")
         reference = build_reference_text(tid, tid, raw)
         session = ReadingSpeedSession(session_id=f"test-{wav.stem}", user_id="test", reference=reference)
-        session._upload_audio_to_minio = lambda: None  # без MinIO у тесті
+        session._upload_audio_to_minio = lambda: None
 
         audio, sr = sf.read(str(wav), dtype="float32")
         assert sr == SAMPLE_RATE

@@ -36,7 +36,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ClassroomService {
 
-    // Без 0/O та 1/I, щоб код легко було продиктувати й ввести з телефона.
     private static final String CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     private static final int CODE_LENGTH = 6;
     private static final SecureRandom RANDOM = new SecureRandom();
@@ -82,8 +81,6 @@ public class ClassroomService {
         return toDTO(classroom, teacher.getName());
     }
 
-    // Нова норма впливає лише на наступні спроби читання — вже виставлені
-    // оцінки зберігають норму, з якою рахувалися.
     public ClassroomDetailsDTO update(Long classroomId, String name, Integer targetWpm) {
         Classroom classroom = findOwned(classroomId);
         validate(name, targetWpm);
@@ -102,7 +99,6 @@ public class ClassroomService {
         }
     }
 
-    // Вчитель — усі свої класи, учень — клас, у якому він зараз (або порожньо).
     public List<ClassroomDTO> getMyClassrooms() {
         Participant current = participantService.getCurrent();
         if (current.getRole() == UserRole.TEACHER) {
@@ -153,7 +149,6 @@ public class ClassroomService {
             student.setClassroom(null);
             participantRepository.save(student);
         }
-        // Тести учнів лишаються як історія, відв'язуємо їх від тесту класу.
         for (ClassroomTest classroomTest : classroomTestRepository.findByClassroom_Id(classroomId)) {
             for (Test test : testRepository.findAllByClassroomTest_Id(classroomTest.getId())) {
                 test.setClassroomTest(null);
@@ -166,8 +161,6 @@ public class ClassroomService {
         classroomRepository.delete(classroom);
     }
 
-    // Учень може бути лише в одному класі — вступ до нового класу замінює
-    // попередній (книги старого класу зникають зі списку, прогрес лишається).
     @Transactional
     public ClassroomDTO join(String code) {
         Participant student = participantService.requireStudent();
@@ -188,8 +181,6 @@ public class ClassroomService {
         return toDTO(classroom, getTeacherName(classroom));
     }
 
-    // Учень у класі: доступ до книг класу й уже призначені класу тести
-    // (і для того, хто вступив за кодом, і для локального учня).
     private void enroll(Participant student, Classroom classroom) {
         student.setClassroom(classroom);
         participantRepository.save(student);
@@ -205,7 +196,6 @@ public class ClassroomService {
         }
     }
 
-    // Локальний учень без акаунта — читає з телефона вчителя (режим учня).
     @Transactional
     public ClassroomDetailsDTO createLocalStudent(Long classroomId, String name) {
         Classroom classroom = findOwned(classroomId);
@@ -222,8 +212,6 @@ public class ClassroomService {
         return getDetails(classroomId);
     }
 
-    // Локального учня прибираємо з класу, але не видаляємо: його спроби
-    // читання й тести лишаються в історії (так само, як після видалення класу).
     @Transactional
     public ClassroomDetailsDTO removeLocalStudent(Long classroomId, Long studentId) {
         findOwned(classroomId);
@@ -256,9 +244,6 @@ public class ClassroomService {
         return getDetails(classroomId);
     }
 
-    // Один тест на клас: питання генеруються один раз, а кожен учень отримує
-    // власний Test з їхньою копією. Без @Transactional навмисно: тести учнів
-    // мають бути закомічені до того, як Python-сервіс поверне питання через RabbitMQ.
     public List<TestDTO> createTestForClassroom(Long classroomId, ClassroomTestRequest request) {
         Classroom classroom = findOwned(classroomId);
         if (request.getBookId() == null || request.getStartPage() == null || request.getEndPage() == null
@@ -288,8 +273,6 @@ public class ClassroomService {
                 .map(student -> testService.createStudentTest(classroomTest, student))
                 .toList();
 
-        // testId першого учня — лише "носій" для відповіді Python-сервісу;
-        // TestService.saveTestResult розкладе питання по всіх тестах класу.
         testService.requestTestGeneration(
                 book.getFileName(),
                 tests.get(0).getId(),
@@ -305,7 +288,6 @@ public class ClassroomService {
         return getDetails(classroomId);
     }
 
-    // Видаляє тест класу разом з тестами учнів, їхніми відповідями й оцінками.
     @Transactional
     public ClassroomDetailsDTO deleteTest(Long classroomId, Long classroomTestId) {
         ClassroomTest classroomTest = findOwnedTest(classroomId, classroomTestId);
@@ -328,8 +310,6 @@ public class ClassroomService {
         return Objects.equals(classroom.getTeacherUserId(), participantService.getCurrent().getUserId());
     }
 
-    // Стан тесту класу зводимо зі станів тестів учнів: помилка важливіша за
-    // генерацію, а "готово" — лише коли питання є в усіх.
     private ClassroomTestDTO toTestDTO(ClassroomTest classroomTest) {
         List<Test> tests = testRepository.findAllByClassroomTest_Id(classroomTest.getId());
         GenerationStatus status = GenerationStatus.READY;

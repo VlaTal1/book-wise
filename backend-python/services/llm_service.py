@@ -2,12 +2,8 @@ import requests
 
 from core.config import settings
 
-# REST-виклик Gemini API напряму через requests: офіційний SDK google-genai
-# потребує pydantic>=2.12, а проєкт зафіксований на pydantic 2.3.
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
-# Причини, з якими Gemini детерміновано відмовляє на цей самий текст —
-# повторювати такий запит марно.
 BLOCK_FINISH_REASONS = {"SAFETY", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "RECITATION"}
 
 
@@ -28,9 +24,6 @@ def generate_answer(prompt: str) -> str:
     response.raise_for_status()
     data = response.json()
 
-    # Gemini може відповісти 200 без кандидатів (запит заблоковано фільтром
-    # безпеки) або з кандидатом без тексту — даємо зрозумілу помилку з причиною
-    # замість KeyError: 'candidates'.
     candidates = data.get("candidates") or []
     if not candidates:
         reason = (data.get("promptFeedback") or {}).get("blockReason")
@@ -43,5 +36,4 @@ def generate_answer(prompt: str) -> str:
         if finish_reason in BLOCK_FINISH_REASONS:
             raise ContentBlockedError(f"Gemini blocked the answer: {finish_reason}")
         raise RuntimeError(f"Gemini returned empty answer: {finish_reason}")
-    # частини з міркуваннями моделі (thought) не є відповіддю
     return "".join(p.get("text", "") for p in parts if not p.get("thought"))

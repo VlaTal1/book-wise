@@ -41,33 +41,25 @@ import pymupdf
 
 logger = logging.getLogger(__name__)
 
-# Рядок вважаємо основним текстом, якщо його кегль у межах ±7% від основного.
 BODY_SIZE_TOLERANCE = 0.07
-# Символ дрібніший за 80% основного кегля — верхній індекс / виноска.
 SUPERSCRIPT_RATIO = 0.8
-# Смуги біля верхнього та нижнього краю сторінки, де шукаємо колонтитули.
 MARGIN_BAND = 0.1
-# Скільки сторінок беремо для статистики (кегль, колонтитули), крім запитаних.
 STATS_SAMPLE_PAGES = 12
-# Рядок біля краю, що повторюється хоча б на стількох сторінках вибірки, — колонтитул.
 REPEATED_LINE_MIN_PAGES = 3
 
-# Наголошені голосні, набрані латинськими/службовими літерами шрифтів підручників.
 _STRESSED_VOWELS = {
     "à": "а", "á": "а", "è": "и", "é": "е", "å": "е", "ì": "і", "í": "і", "³": "і",
     "ò": "о", "ó": "о", "ù": "у", "ú": "у", "ý": "у", "ÿ": "я", "þ": "ю", "º": "є", "¿": "ї",
 }
 _CYRILLIC = re.compile(r"[а-яіїєґ’'А-ЯІЇЄҐ]")
 _COMBINING_ACUTE = "́"
-# Номер сторінки (або пара «34 35»): хоча б одна цифра, крім неї — лише
-# роздільники. Без вимоги цифри сюди потрапляло окреме тире з рядка діалогу.
 _ONLY_NUMBERS_RE = re.compile(r"^[\s\-–—.,|]*\d[\d\s\-–—.,|]*$")
 
 
 @dataclass
 class _Line:
     text: str
-    size: float          # домінантний кегль рядка
+    size: float
     x0: float
     y0: float
     y1: float
@@ -114,7 +106,6 @@ def _sample_pages(total: int) -> list[int]:
 
 def _page_lines(page) -> list[_Line]:
     raw = page.get_text("rawdict", sort=True)
-    # Спершу збираємо всі символи, щоб знати кегль сторінки для верхніх індексів.
     sizes = Counter()
     for block in raw["blocks"]:
         for line in block.get("lines", []):
@@ -130,7 +121,7 @@ def _page_lines(page) -> list[_Line]:
         if block.get("type") != 0:
             continue
         for line in block["lines"]:
-            chars = []  # (символ, x0)
+            chars = []
             weight = Counter()
             for span in line["spans"]:
                 if span["size"] < small:
@@ -159,7 +150,6 @@ def _join_chars(chars: list[tuple[str, float]]) -> str:
     out = []
     for i, (ch, x0) in enumerate(chars):
         if ch == " ":
-            # Пробіл нульової ширини: наступна літера стоїть там само — це не пробіл.
             nxt = next((x for c, x in chars[i + 1:] if c != " "), None)
             if nxt is not None and nxt - x0 < 1.0:
                 continue
@@ -204,8 +194,6 @@ def _is_margin_noise(line: _Line, height: float, repeated: set[str]) -> bool:
 
 def _normalize_chars(text: str) -> str:
     text = text.replace(_COMBINING_ACUTE, "")
-    # Гліф наголошеної голосної інколи відділено пробілом: «Кайм àк», «образ è».
-    # Латинська à/è тощо не буває окремим українським словом, тож пробіл зайвий.
     glyphs = "".join(_STRESSED_VOWELS)
     text = re.sub(rf"(?<=[а-яіїєґ’]) ([{glyphs}])", r"\1", text)
     out = list(text)
@@ -216,7 +204,6 @@ def _normalize_chars(text: str) -> str:
             if _CYRILLIC.match(prev) or _CYRILLIC.match(nxt):
                 out[i] = _STRESSED_VOWELS[ch]
     text = "".join(out)
-    # Дефіс, закодований як «`» (Ні`ні, по`дитячому).
     return re.sub(r"(?<=\w)`(?=\w)", "-", text)
 
 
@@ -240,8 +227,6 @@ def _to_paragraphs(lines: list[_Line], body_size: float) -> str:
     if not lines:
         return ""
     lines = _merge_rows(lines, body_size)
-    # Лівий край основного тексту сторінки — найменший x0, на якому починається
-    # хоча б кілька рядків (обтікання картинки дає окрему «колонку»).
     starts = Counter(round(l.x0) for l in lines)
     frequent = [x for x, n in starts.items() if n >= 2] or list(starts)
     left = min(frequent)

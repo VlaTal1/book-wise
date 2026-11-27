@@ -48,7 +48,6 @@ public class ClassroomController {
         return ResponseEntity.noContent().build();
     }
 
-    // Локальні учні (без акаунта) — читають з телефона вчителя.
     @PostMapping("/{id}/local-students")
     public ResponseEntity<ClassroomDetailsDTO> createLocalStudent(@PathVariable Long id, @RequestBody CreateLocalStudentRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(classroomService.createLocalStudent(id, request.getName()));

@@ -75,7 +75,6 @@ public class MinioService {
         }
     }
 
-    // Розмір об'єкта в бакеті або null, якщо його немає.
     public Long fileSize(String filename) {
         try {
             return minioClient.statObject(StatObjectArgs.builder().bucket(bucketName).object(filename).build()).size();

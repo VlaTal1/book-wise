@@ -20,7 +20,6 @@ const Home = () => {
     const {profile, isTeacher, isStudent, refreshProfile} = useRole();
     const router = useRouter();
 
-    // Після вступу до класу назва класу на картці має оновитися.
     useFocusEffect(useCallback(() => {
         refreshProfile();
     }, [refreshProfile]));

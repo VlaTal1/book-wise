@@ -47,7 +47,6 @@ public class BookService {
 
     private final ParticipantService participantService;
 
-    // Вчитель бачить завантажені ним книги, учень — призначені його класу.
     public List<BookDTO> getAllBooks() {
         Participant current = participantService.getCurrent();
         if (current.getRole() == UserRole.STUDENT) {
@@ -72,7 +71,6 @@ public class BookService {
         return bookConverter.toDTO(findVisibleBook(id));
     }
 
-    // Книгу бачить вчитель, що її завантажив, і учні, яким її призначено.
     public Book findVisibleBook(Long id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Book not found with id: " + id));
@@ -96,7 +94,6 @@ public class BookService {
         Book entity = findVisibleBook(bookId);
         BookWithDetails bookWithDetails = bookConverter.fromDTOtoWithDetails(bookConverter.toDTO(entity));
 
-        // Список учнів з доступом потрібен лише вчителю-власнику.
         if (!Objects.equals(entity.getUserId(), userService.getUserId())) {
             bookWithDetails.setAccesses(List.of());
             return bookWithDetails;
@@ -158,7 +155,6 @@ public class BookService {
     public void deleteBook(Long id) throws MinioException {
         Book book = findOwnedBook(id);
 
-        // Файл каталожної книги спільний для всіх вчителів — не видаляємо.
         if (book.getCatalogKey() == null) {
             minioService.deleteFile(book.getFileName());
         }

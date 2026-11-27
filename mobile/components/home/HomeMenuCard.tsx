@@ -8,7 +8,6 @@ import i18n from "@/localization/i18n";
 type HomeMenuCardProps = {
     title: string;
     type: "books" | "tests" | "classrooms" | "statistics" | "readingSpeed" | "readingHistory";
-    // Перекриває стандартний опис типу картки.
     description?: string;
     onPress?: () => void;
     disabled?: boolean;

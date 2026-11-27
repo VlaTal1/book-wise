@@ -24,8 +24,6 @@ public class ParticipantService {
 
     private final UserService userService;
 
-    // Профіль створюється один раз після реєстрації в Supabase — користувач
-    // сам обирає, хто він: вчитель чи учень.
     public ParticipantDTO createProfile(CreateProfileRequest request) {
         if (request.getName() == null || request.getName().isBlank()) {
             throw new IllegalArgumentException("Name cannot be empty");
@@ -74,8 +72,6 @@ public class ParticipantService {
         return current;
     }
 
-    // Учні, чиї дані бачить поточний користувач: вчитель — усіх учнів своїх
-    // класів, учень — лише себе.
     public List<Participant> getVisibleStudents() {
         Participant current = getCurrent();
         if (current.getRole() == UserRole.TEACHER) {
@@ -92,7 +88,6 @@ public class ParticipantService {
         return getVisibleStudents().stream().map(Participant::getId).toList();
     }
 
-    // Доступ до даних учня має він сам і вчитель його класу.
     public boolean canView(Participant participant) {
         String userId = userService.getUserId();
         if (Objects.equals(participant.getUserId(), userId)) {

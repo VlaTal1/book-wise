@@ -70,7 +70,6 @@ const StudentRow = ({result, position, maxAttempts, onPress}: {
                     <CustomText size="h5Medium" color="$gray-60">—</CustomText>
                 )}
             </XStack>
-            {/* Складові найкращої (оціненої) спроби — та сама, що в загальній оцінці. */}
             {result.bestAttemptId !== null && (
                 <GradeBreakdown
                     data={{
@@ -88,8 +87,6 @@ const StudentRow = ({result, position, maxAttempts, onPress}: {
     );
 };
 
-// Результати фрагмента для читання по учнях класу: від найкращої оцінки до
-// найгіршої (найкраща спроба кожного учня) з кількістю використаних спроб.
 const ClassroomReadingResultsScreen = () => {
     const router = useRouter();
     const {id, classroomId} = useLocalSearchParams<{id: string; classroomId: string}>();
@@ -207,7 +204,6 @@ const ClassroomReadingResultsScreen = () => {
                                     </CustomText>
                                 )}
                                 {results.students.map((result) => {
-                                    // Місце в рейтингу — лише в учнів з оцінкою.
                                     const rank = result.bestGrade !== null ? ++position : null;
                                     return (
                                         <StudentRow

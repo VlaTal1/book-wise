@@ -174,7 +174,6 @@ const defaultErrorHandler = async (response: Response, responseType: RequestConf
                 const textError = await response.text();
                 errorMessage = textError || errorMessage;
             } catch {
-                /* empty */
             }
         }
     }
@@ -325,7 +324,6 @@ const apiRequest = async <T>(config: RequestConfig): Promise<ApiResponse<T>> => 
             }
 
             requestHeaders["Authorization"] = `Bearer ${authToken}`;
-            // Режим учня на телефоні вчителя (локальний учень без акаунта).
             const actingStudentId = getActingStudentId();
             if (actingStudentId !== null) {
                 requestHeaders[ACT_AS_HEADER] = actingStudentId.toString();

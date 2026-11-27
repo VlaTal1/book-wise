@@ -50,7 +50,6 @@ const Test = () => {
         setCurrentQuestionIndex(currentQuestionIndex + 1);
     };
 
-    // Calculate progress percentage
     const progressPercent = currentTest.questions.length > 0
         ? ((currentQuestionIndex + 1) / currentTest.questions.length) * 100
         : 0;
@@ -60,7 +59,6 @@ const Test = () => {
             <CustomStackScreen/>
             <YStack flex={1} paddingHorizontal={16} gap={24} justifyContent="space-between" paddingVertical={24}>
                 
-                {/* Progress bar container */}
                 <YStack gap={8}>
                     <XStack justifyContent="space-between" alignItems="center">
                         <CustomText size="p3Medium" color="$gray-40">
@@ -80,7 +78,6 @@ const Test = () => {
                     </View>
                 </YStack>
 
-                {/* Question Card */}
                 <YStack
                     backgroundColor="#FFFFFF"
                     borderRadius={28}
@@ -97,7 +94,6 @@ const Test = () => {
                     </CustomText>
                 </YStack>
 
-                {/* Choices/Answers */}
                 <YStack gap={12}>
                     {currentQuestion?.answers.map((answer, index) => {
                         const optionLabel = optionLabels[index] || "?";

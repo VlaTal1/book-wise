@@ -38,9 +38,6 @@ public class ReadingSpeedAttemptService {
 
     private final ClassroomReadingService classroomReadingService;
 
-    // Викликається лише Python-сервісом через внутрішній ендпоінт (/internal/**,
-    // захищений API-ключем, не Supabase JWT) — тут немає автентифікованого
-    // користувача в контексті, тож перевірку власника учасника не робимо.
     public ReadingSpeedAttemptDTO save(ReadingSpeedAttemptDTO dto) {
         if (dto.getParticipantId() == null) {
             throw new IllegalArgumentException("Participant id cannot be null");
@@ -55,8 +52,6 @@ public class ReadingSpeedAttemptService {
         if (participant.getClassroom() != null) {
             attempt.setTargetWpm(participant.getClassroom().getTargetWpm());
         }
-        // Спроба по завданню класу; якщо завдання вже видалили — зберігаємо
-        // як звичайну спробу, щоб не губити результат учня.
         classroomReadingService.findById(dto.getClassroomReadingId()).ifPresent(attempt::setClassroomReading);
 
         ReadingSpeedAttempt savedAttempt = readingSpeedAttemptRepository.save(attempt);
@@ -71,8 +66,6 @@ public class ReadingSpeedAttemptService {
                 .toList();
     }
 
-    // Для вчителя — історія по ВСІХ учнях його класів одним списком
-    // (participantName у DTO показує, чия це спроба), для учня — лише своя.
     public List<ReadingSpeedAttemptDTO> getHistoryForCurrentUser() {
         return readingSpeedAttemptRepository.findAllByParticipant_IdInOrderByCreatedAtDesc(participantService.getVisibleStudentIds()).stream()
                 .map(readingSpeedAttemptConverter::toDTO)
@@ -83,9 +76,6 @@ public class ReadingSpeedAttemptService {
         return readingSpeedAttemptConverter.toDTO(findOwnedAttempt(id));
     }
 
-    // Стрім аудіо сесії читання для програвання в історії — той самий
-    // ownership-check, що й getById, бо аудіо містить голос учня і не
-    // повинно бути доступне нікому, крім нього самого та його вчителя.
     public InputStream getAudioStream(Long id) throws MinioException {
         ReadingSpeedAttempt attempt = findOwnedAttempt(id);
         if (attempt.getAudioFileName() == null) {
@@ -94,10 +84,6 @@ public class ReadingSpeedAttemptService {
         return minioService.getFile(attempt.getAudioFileName());
     }
 
-    // Той самий ownership-check, що й getById/getAudioStream. Аудіо в MinIO
-    // теж видаляємо (best-effort — якщо файл уже відсутній чи MinIO
-    // недоступний, все одно видаляємо сам запис в БД, не блокуємо
-    // користувача через проблему з побічним артефактом).
     public void deleteAttempt(Long id) {
         ReadingSpeedAttempt attempt = findOwnedAttempt(id);
         if (attempt.getAudioFileName() != null) {
@@ -118,9 +104,6 @@ public class ReadingSpeedAttemptService {
         return attempt;
     }
 
-    // Викликається лише Python-сервісом (/internal/**, API-ключ) під час
-    // обробки шару перевірки наголосу — проміжні оновлення прогресу, щоб
-    // мобілка могла показати прогрес-бар, поки триває forced alignment.
     public void updateStressProgress(Long id, StressProgressUpdateDTO dto) {
         ReadingSpeedAttempt attempt = readingSpeedAttemptRepository.findById(id).orElseThrow(
                 () -> new NotFoundException("Reading speed attempt not found")
@@ -130,7 +113,6 @@ public class ReadingSpeedAttemptService {
         readingSpeedAttemptRepository.save(attempt);
     }
 
-    // Фінальний результат шару перевірки наголосу від Python.
     public void updateStressResult(Long id, StressResultUpdateDTO dto) {
         ReadingSpeedAttempt attempt = readingSpeedAttemptRepository.findById(id).orElseThrow(
                 () -> new NotFoundException("Reading speed attempt not found")
@@ -146,8 +128,6 @@ public class ReadingSpeedAttemptService {
         readingSpeedAttemptRepository.save(attempt);
     }
 
-    // Результат тесту на розуміння після читання надсилає сам учень (тест
-    // проходить на телефоні). Приймаємо один раз — повторно не перезаписуємо.
     public ReadingSpeedAttemptDTO submitQuizResult(Long id, Integer correct) {
         ReadingSpeedAttempt attempt = readingSpeedAttemptRepository.findById(id).orElseThrow(
                 () -> new NotFoundException("Reading speed attempt not found")
@@ -170,7 +150,6 @@ public class ReadingSpeedAttemptService {
         return readingSpeedAttemptConverter.toDTO(readingSpeedAttemptRepository.save(attempt));
     }
 
-    // Оцінку виставляємо лише остаточну — коли і наголос, і тест уже готові.
     private void updateGradeIfReady(ReadingSpeedAttempt attempt) {
         if (attempt.getGrade() == null && ReadingGradeCalculator.isReady(attempt)) {
             ReadingGradeCalculator.apply(attempt);

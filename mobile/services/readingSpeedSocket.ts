@@ -32,18 +32,9 @@ export interface ReadingSpeedSocketHandlers {
     onClose?: () => void;
 }
 
-// Один інстанс = один сеанс читання (один WS-конект). connect() резолвиться
-// щойно приходить перше повідомлення "reference" — гарантує, що еталонний
-// текст уже на клієнті до старту запису мікрофона.
 export class ReadingSpeedSocket {
     private ws: WebSocket | null = null;
 
-    // textId: якщо не передано — бекенд сам обирає випадковий уривок
-    // (~300-340 слів) з книги, призначеної дитині (services/book_excerpt.py
-    // на боці Python). Явний textId лишається лише для розробки/діагностики
-    // (фіксований eталонний текст).
-    // assignmentId — фрагмент, призначений класу вчителем (текст, ліміт часу
-    // і кількість спроб задає вчитель).
     async connect(
         participantId: string,
         textId: string | undefined,
@@ -90,15 +81,11 @@ export class ReadingSpeedSocket {
                 }
             };
 
-            // Відмову до старту сесії обробляє onclose (він завжди йде після
-            // onerror) — лише там доступна причина закриття від сервера.
             ws.onerror = (event) => {
                 handlers.onError?.(event);
             };
 
             ws.onclose = (event) => {
-                // Сервер відмовив ще до початку (напр. вичерпано спроби) —
-                // причина приходить у reason закриття.
                 if (!referenceReceived) {
                     reject(new ReadingSpeedConnectError(event.reason || ""));
                 }

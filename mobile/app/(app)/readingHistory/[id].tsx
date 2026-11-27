@@ -115,8 +115,6 @@ const ReadingHistoryDetails = () => {
         }
     }, [attempt?.stressWordsJson]);
 
-    // Оцінка ще може з'явитися: триває перевірка наголосу або учень ще не
-    // надіслав результат тесту.
     const gradePending = attempt !== undefined && attempt !== null && (
         attempt.stressStatus === "PENDING" || attempt.stressStatus === "PROCESSING" ||
         (attempt.quizTotal != null && attempt.quizTotal > 0 && attempt.quizCorrect == null)

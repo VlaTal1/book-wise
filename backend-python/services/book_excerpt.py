@@ -32,15 +32,9 @@ from utils.reference_text import build_reference_text
 
 logger = logging.getLogger(__name__)
 
-# "так на 300, може чуть більше" (постановка задачі) — беремо вікно речень,
-# що покриває [MIN, HARD_CAP] слів, віддаючи перевагу ближчому до MIN, але
-# не розрізаючи останнє речення посередині (звідси запас до HARD_CAP).
 EXCERPT_TARGET_MIN_WORDS = 300
 EXCERPT_TARGET_MAX_WORDS = 340
 EXCERPT_HARD_CAP_WORDS = 400
-# Скільки сторінок від випадкової стартової читаємо за одну спробу — з
-# запасом над тим, скільки типово треба тексту прози, щоб набрати 300+ слів
-# (при цьому не читаємо книгу цілком, це занадто повільно для WS-хендшейку).
 EXCERPT_MAX_PAGES_SCAN = 20
 
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?…])\s+")
@@ -99,10 +93,6 @@ def _extract_excerpt_from_book(book: dict) -> ReferenceText | None:
 
         start_page_idx = random.randrange(num_pages)
         text = extract_text(local_path, start_page_idx, start_page_idx + EXCERPT_MAX_PAGES_SCAN)
-        # Випадкова сторінка могла впасти близько до кінця книги — тоді
-        # решти тексту може не вистачити на цільову кількість слів. Одна
-        # додаткова спроба з початку книги дешевша й простіша, ніж шукати
-        # "останню придатну" стартову сторінку заздалегідь.
         if len(text.split()) < EXCERPT_TARGET_MIN_WORDS and start_page_idx > 0:
             start_page_idx = 0
             text = extract_text(local_path, 0, EXCERPT_MAX_PAGES_SCAN)
@@ -127,7 +117,6 @@ def _extract_excerpt_from_book(book: dict) -> ReferenceText | None:
 
 def _download_book(file_name: str) -> str:
     os.makedirs(settings.temp_dir, exist_ok=True)
-    # Ім'я об'єкта може містити "/" (книги каталогу: catalog/9_grade.pdf).
     local_path = os.path.join(settings.temp_dir, f"excerpt_{uuid.uuid4().hex}_{os.path.basename(file_name)}")
     minio_client.fget_object(
         bucket_name=settings.minio_bucket,
@@ -146,8 +135,6 @@ def _cleanup_temp_file(path: str) -> None:
 
 def _split_sentences(text: str) -> list[str]:
     parts = [p.strip() for p in _SENTENCE_SPLIT_RE.split(text) if p.strip()]
-    # Відкидаємо занадто короткі "речення" (1-2 слова) — типово це залишки
-    # PDF-артефактів (розірвані заголовки, колонтитули), не повноцінна проза.
     return [p for p in parts if len(p.split()) >= 3]
 
 

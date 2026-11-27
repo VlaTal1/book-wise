@@ -12,11 +12,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ClassroomReadingRequest {
 
-    // FIXED (за замовчуванням) — фрагмент за сторінками й абзацами;
-    // RANDOM — випадкові уривки з книги, сторінки й абзаци не потрібні.
     private ReadingMode mode;
 
-    // Необов'язкова назва завдання (до 100 символів).
     private String name;
 
     private Long bookId;
@@ -25,15 +22,11 @@ public class ClassroomReadingRequest {
 
     private Integer endPage;
 
-    // Індекси першого й останнього абзацу (включно) у попередньому перегляді
-    // сторінок startPage..endPage.
     private Integer startParagraph;
 
     private Integer endParagraph;
 
-    // null — без ліміту часу.
     private Integer timeLimitSeconds;
 
-    // null — без обмеження кількості спроб.
     private Integer maxAttempts;
 }

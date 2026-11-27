@@ -13,9 +13,7 @@ import {ReadingSpeedStatsByParticipant} from "@/types/statistics/ReadingSpeedSta
 import {GRADE_MAX} from "@/constants/readingGrade";
 
 type Props = {
-    // Уже відсортовано бекендом за середньою оцінкою (без оцінок — наприкінці).
     stats: ReadingSpeedStatsByParticipant[];
-    // Усі учні, яких бачить користувач — щоб показати й тих, хто ще не читав.
     students: Participant[];
 };
 
@@ -28,7 +26,6 @@ const formatDate = (dateStr: string): string => {
     return `${date.getDate().toString().padStart(2, "0")}.${(date.getMonth() + 1).toString().padStart(2, "0")}`;
 };
 
-// Зміна за останні спроби: стрілка й колір показують, покращується учень чи ні.
 const TrendBadge = ({trend}: { trend: number | null }) => {
     if (trend == null || Math.abs(trend) < 0.05) {
         return null;
@@ -44,8 +41,6 @@ const TrendBadge = ({trend}: { trend: number | null }) => {
     );
 };
 
-// Оцінки 1-10 за читання на швидкість: рейтинг учнів за середнім балом
-// (для учня — лише він сам) і динаміка оцінок обраного учня по днях.
 const GradesStatistics = ({stats, students}: Props) => {
     const [selectedId, setSelectedId] = useState<number | null>(stats[0]?.participant.id ?? null);
 

@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-// Для Python-сервісу на старті сесії читання призначеного фрагмента.
 @Getter
 @Setter
 @Builder
@@ -21,11 +20,8 @@ public class ReadingSessionDTO {
 
     private String title;
 
-    // FIXED — готовий текст фрагмента.
     private String text;
 
-    // RANDOM — книга, з якої Python обирає випадковий уривок (для книг
-    // каталогу — з підготовлених уривків за catalogKey).
     private Long bookId;
 
     private String fileName;

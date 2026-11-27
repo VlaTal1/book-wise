@@ -15,10 +15,6 @@ interface Props {
     tentativeStatuses?: Record<number, WordStatus>;
 }
 
-// Статус слова передається кольором ФОНУ під словом (а не кольором тексту) —
-// так наочніше. Відступи однакові для всіх слів незалежно від статусу, тому
-// зміна заливки не зсуває текст під час читання. Підтверджений статус
-// (statuses) завжди має пріоритет над чорновим (tentativeStatuses).
 export const HighlightedWordText = ({words, statuses, tentativeStatuses = {}}: Props) => {
     return (
         <XStack flexWrap="wrap" columnGap={2} rowGap={4}>

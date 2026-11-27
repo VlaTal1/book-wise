@@ -1,45 +1,13 @@
 from models.reading_speed import ReadingSpeedMetrics, ReferenceWord, WordEvent, WordStatus
 
-# Наскільки широке вікно еталону порівнюємо з накопиченим буфером розпізнаних
-# слів (запас над довжиною буфера, щоб DP міг знайти реальний пропуск, а не
-# лише збіг 1:1). Заміряно емпірично на vals-record.wav (розділ 9, п.5 дока):
-# при ALIGN_SLACK >= 4 разом з TAIL_HOLDBACK=2 повертається той самий баг
-# хибного перестрибування вперед, що й раніше — тримати <= 3.
 ALIGN_SLACK = 3
 
-# Скільки останніх розпізнаних слів у буфері НЕ фіксуємо остаточно — рішення
-# по них може змінитися, коли надійде більше контексту. Без цього наївне
-# "жадібне" вирівнювання по одному слову хибно перестрибувало вперед по
-# еталону після одноразової помилкової підміни (типово — одразу після
-# not_in_vocabulary слова) і застрягало там до кінця сесії.
-#
-# Заміряно емпірично (той самий запис, той самий важкий кейс з OOV-словом):
-# TAIL_HOLDBACK=1 стабільно ламає точність (та ж помилка), TAIL_HOLDBACK=2 —
-# безпечний мінімум, зберігає точність (98.2%) і дає ~22% менше затримки
-# підсвітки слів порівняно з TAIL_HOLDBACK=4 (6.6 слів замість 8.5). Нижче
-# опускатися ризиковано без глибшого перегляду алгоритму (наприклад,
-# розбиття грамматики на речення замість однієї фрази — Vosk сам по собі
-# теж вносить частину цієї затримки, не тільки цей буфер).
 TAIL_HOLDBACK = 2
 
-# Скільки слів еталону вперед від self._pointer показуємо як "в процесі"
-# (tentative) — навмисно маленьке число, це лише візуальний натяк, що зараз
-# читається десь тут, а не спроба вгадати результат заздалегідь.
 PREVIEW_LOOKAHEAD = 2
 
-# Скільки розпізнаних слів тримаємо в буфері, поки в них немає жодного
-# точного збігу з еталоном ("якоря"). Без якоря позицію в тексті не рухаємо:
-# це або шум/вигук, або повтор уже прочитаного, або граматика Vosk "підтягнула"
-# слово з іншого місця тексту. Коли буфер переповнюється, найстаріші слова
-# просто відкидаємо (без статусу).
 MAX_UNANCHORED_PENDING = 6
 
-# Пересинхронізація після реального пропуску шматка тексту (рядок/речення):
-# якщо останні RESYNC_RUN розпізнаних слів ПІДРЯД збігаються з еталоном
-# десь попереду (не далі RESYNC_LOOKAHEAD слів від поточної позиції),
-# переносимо позицію туди, а пропущене між ними позначаємо SKIPPED.
-# Три слова підряд — достатньо сильний доказ; одиночні збіги (шум, повтори,
-# слово, яке граматика "підтягнула" з іншого місця тексту) його не дають.
 RESYNC_RUN = 3
 RESYNC_LOOKAHEAD = 60
 
@@ -57,11 +25,6 @@ class ReadingAlignmentTracker:
     def __init__(self, reference_words: list[ReferenceWord]):
         self._reference_words = reference_words
         self._pointer = 0
-        # Скільки слів з ПОВНОГО (постійно зростаючого) потоку Vosk
-        # partial/final результатів ми вже забрали в буфер — монотонно
-        # зростає, НЕ зменшується, коли слова з буфера комітяться і
-        # видаляються (інакше наступний виклик знову захопить те саме слово
-        # вдруге — саме такий дубль і був справжньою причиною першого зламу).
         self._total_words_seen = 0
         self._pending_recognized: list[str] = []
         self._statuses: dict[int, WordStatus] = {}
@@ -193,10 +156,6 @@ class ReadingAlignmentTracker:
         error = sum(1 for s in self._statuses.values() if s == WordStatus.ERROR)
         skipped = sum(1 for s in self._statuses.values() if s == WordStatus.SKIPPED)
         not_in_vocab = sum(1 for s in self._statuses.values() if s == WordStatus.NOT_IN_VOCABULARY)
-        # НЕ len(self._reference_words) — еталонний текст навмисно довший
-        # (300-340 слів, запас на темп читання), ніж дитина встигає прочитати
-        # за хвилину, тому "хвіст" (NOT_REACHED) виключений з підрахунку:
-        # точність/WPM рахуються лише по тому, що реально прочитано.
         total = correct + error + skipped + not_in_vocab
         minutes = max(duration_seconds / 60, 1e-6)
 
@@ -204,16 +163,9 @@ class ReadingAlignmentTracker:
             total_words=total,
             correct_count=correct,
             error_count=error,
-            # "не розпізнано" зараховуємо як пропущене за замовчуванням (рішення
-            # по п.4, docs/reading-speed-feature-design.md, розділ 8); окремо
-            # зберігаємо not_in_vocabulary_count для майбутнього перерахунку.
             skipped_count=skipped + not_in_vocab,
             not_in_vocabulary_count=not_in_vocab,
             duration_seconds=round(duration_seconds, 2),
-            # Темп — усі слова від початку до кінця читання, крім пропущених:
-            # правильні, з помилкою і відсутні у словнику Vosk (їх прочитання
-            # не перевірити, але читач пройшов далі; хвіст таких слів у кінці
-            # запису вже прибрано trim_trailing_skipped).
             wpm=round((correct + error + not_in_vocab) / minutes, 1),
             accuracy=round(correct / total, 4) if total else 0.0,
         )
@@ -235,18 +187,10 @@ class ReadingAlignmentTracker:
             return events
 
         ref_window_indices, ref_window_words = self._build_window(len(self._pending_recognized))
-        # free_ref_tail: слова вікна ПІСЛЯ останнього розпізнаного — це те,
-        # що ще не прочитано, а не пропуски. Інакше DP мусив би "списати" їх
-        # як del, і на кожне розпізнане слово, що не збігається з вікном
-        # (повтор, шум), позиція стрибала вперед на ALIGN_SLACK+1 слів
-        # (3 skipped + 1 error) — так підсвітка й "тікала" від читача.
         ops = _levenshtein_align(ref_window_words, self._pending_recognized, free_ref_tail=True)
         commit_upto = len(ops) if final else _find_commit_boundary(ops, TAIL_HOLDBACK)
 
         if not final and not any(op == "match" for op, _, _ in ops[:commit_upto]):
-            # Немає жодного якоря в тому, що збиралися зафіксувати, — або
-            # читач перескочив уперед (пересинхронізуємось), або це шум /
-            # повтор: тоді чекаємо більше контексту, позицію не рухаємо.
             events.extend(self._try_resync())
             if len(self._pending_recognized) > MAX_UNANCHORED_PENDING:
                 self._pending_recognized = self._pending_recognized[-MAX_UNANCHORED_PENDING:]
@@ -269,9 +213,6 @@ class ReadingAlignmentTracker:
 
         if last_committed_window_pos is not None:
             new_pointer = ref_window_indices[last_committed_window_pos] + 1
-            # Слова еталону поза словником, що потрапили в цей проміжок (їх
-            # пропустили при побудові вікна вище, бо DP їх ніколи не бачить),
-            # теж потрібно позначити — інакше вони лишаться без статусу.
             for skipped_idx in range(self._pointer, new_pointer):
                 if skipped_idx not in self._statuses:
                     events.append(self._set_status(skipped_idx, WordStatus.NOT_IN_VOCABULARY))

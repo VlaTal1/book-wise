@@ -9,8 +9,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
-// Тест, призначений класу. Питання генеруються один раз, а кожен учень
-// отримує власний Test (зі своїми відповідями й оцінкою) з копією цих питань.
 @Entity
 @Table(name = "CLASSROOM_TEST")
 @Getter

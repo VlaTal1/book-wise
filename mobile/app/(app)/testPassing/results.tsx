@@ -24,12 +24,11 @@ const Results = () => {
         router.dismissTo("/");
     };
 
-    // Calculate score details
     const scoreColor = useMemo(() => {
         if (!currentTest) return "#CB5A2E";
-        if (currentTest.grade >= 8) return "#3F8A5D"; // Emerald
-        if (currentTest.grade >= 5) return "#D69E2E"; // Amber
-        return "#C1443A"; // Red
+        if (currentTest.grade >= 8) return "#3F8A5D";
+        if (currentTest.grade >= 5) return "#D69E2E";
+        return "#C1443A";
     }, [currentTest]);
 
     const celebrationMessage = useMemo(() => {
@@ -62,7 +61,6 @@ const Results = () => {
             <CustomStackScreen/>
             <YStack flex={1} paddingHorizontal={16} gap={24} justifyContent="center" alignItems="center" paddingBottom={80}>
                 
-                {/* Score Circle */}
                 <View
                     width={160}
                     height={160}
@@ -90,7 +88,6 @@ const Results = () => {
                     </YStack>
                 </View>
 
-                {/* Celebration Title */}
                 <YStack alignItems="center" gap={8} marginTop={12}>
                     <CustomText size="h2" color="$gray-20" textAlign="center">
                         {celebrationMessage}
@@ -100,7 +97,6 @@ const Results = () => {
                     </CustomText>
                 </YStack>
 
-                {/* Reward Card / Summary */}
                 <YStack
                     backgroundColor="#FFFFFF"
                     borderRadius={24}
@@ -116,7 +112,6 @@ const Results = () => {
                         shadowOpacity: 1,
                     }}
                 >
-                    {/* Book name and details */}
                     <XStack gap={12} alignItems="center" borderBottomWidth={1} borderBottomColor="$gray-93" paddingBottom={12}>
                         <View
                             backgroundColor="#FBEAD9"
@@ -135,12 +130,10 @@ const Results = () => {
                         </YStack>
                     </XStack>
 
-                    {/* Score stats */}
                     <CustomText size="p2Medium" color="$gray-20">
                         {i18n.t("correct_answer_amount", {amount: currentTest.correctAnswers})}
                     </CustomText>
 
-                    {/* Progress details */}
                     <CustomText size="p2Medium" color="$gray-20">
                         {i18n.t("pages_range", {start: currentTest.startPage, end: currentTest.endPage})}
                     </CustomText>

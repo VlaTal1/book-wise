@@ -20,7 +20,6 @@ public class CatalogBookDTO {
 
     private Integer grade;
 
-    // Не віддаємо клієнту — лише ім'я файлу в resources/catalog.
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String file;
 }

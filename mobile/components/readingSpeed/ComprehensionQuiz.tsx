@@ -11,17 +11,9 @@ const OPTION_LABELS = ["A", "B", "C", "D"];
 
 interface Props {
     questions: ComprehensionQuizQuestion[];
-    // Якщо передано — після останнього питання віддаємо рахунок батьку
-    // (екран сам покаже результати) замість власного підсумку.
     onFinish?: (correctCount: number) => void;
 }
 
-// Невеликий тест на розуміння прочитаного одразу під результатами читання на
-// швидкість (1-3 питання, кількість обирає AI на бекенді залежно від того,
-// скільки встигла прочитати дитина — services/comprehension_quiz.py). На
-// відміну від app/(app)/testPassing/test.tsx, тут усе лише в локальному
-// стані екрана: питання ефемерні (не мають id, ніде не зберігаються в Java),
-// тому без Redux і без збереження прогресу/оцінки.
 export const ComprehensionQuiz = ({questions, onFinish}: Props) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);

@@ -12,10 +12,6 @@ import {StatisticsType} from "@/types/statistics";
 import {ParticipantDailyStats} from "@/types/statistics/DailyStatistics";
 import {WeeklyStatsByParticipant} from "@/types/statistics/YearStatistics";
 
-// "Просте" читання — оцінки за тести й сторінки/час читання (ReadingSession,
-// не пов'язано з WPM-фічею вимірювання швидкості читання, див. сусідній
-// ReadingSpeedStatistics). Винесено з app/(app)/statistics.tsx як є, без
-// змін логіки — лише один з двох зовнішніх табів екрана статистики тепер.
 const SimpleReadingStatistics = () => {
     const tabs = useMemo(() => ([
         i18n.t("avg_grade"),

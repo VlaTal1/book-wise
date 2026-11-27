@@ -34,13 +34,11 @@ public class BookController {
         return ResponseEntity.ok(books);
     }
 
-    // Вбудований каталог предзаготовлених книг.
     @GetMapping("/catalog")
     public ResponseEntity<List<CatalogBookDTO>> getCatalog() {
         return ResponseEntity.ok(bookCatalogService.getCatalog());
     }
 
-    // Додає книгу з каталогу до бібліотеки вчителя (ідемпотентно) і повертає її.
     @PostMapping("/catalog/{key}")
     public ResponseEntity<BookDTO> addFromCatalog(@PathVariable String key) throws MinioException {
         return ResponseEntity.ok(bookCatalogService.addToLibrary(key));

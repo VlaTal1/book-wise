@@ -188,7 +188,6 @@ const Reader = () => {
     }, [id]);
 
     useEffect(() => {
-        // Без завантаженого тесту читалка не перекидає учня на проходження тесту.
         if (READING_TESTS_ENABLED && isStudent && studentId) {
             invokeFetchFirstTestByParticipantIdAndBookId();
         }

@@ -15,8 +15,6 @@ public class AccessService {
 
     private final ProgressService progressService;
 
-    // Викликається з ClassroomService (призначення книги класу / вступ учня),
-    // права вчителя там уже перевірено.
     public void grantAccess(Book book, Participant participant) {
         Access access = accessRepository.findByBook_IdAndParticipant_Id(book.getId(), participant.getId());
         if (access == null) {
@@ -29,7 +27,6 @@ public class AccessService {
         progressService.createIfNotExists(book, participant);
     }
 
-    // Прогрес і тести лишаються як історія, зникає лише книга зі списку учня.
     public void revokeAllAccesses(Participant participant) {
         accessRepository.deleteByParticipant_Id(participant.getId());
     }

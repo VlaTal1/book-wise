@@ -70,7 +70,6 @@ async def process_test_generation_request(request: Union[str, Dict[str, Any]]) -
     except Exception as e:
         logger.error(f"Failed to process test generation request: {e}")
         if 'file_name' in locals() and file_name:
-            # testId потрібен Java, щоб позначити тести як FAILED, а не лишити їх у стані генерації.
             await send_error_response(file_name, locals().get('test_id'), f"Failed to process test generation request: {str(e)}")
 
 
@@ -78,11 +77,9 @@ async def get_book_text(file_name: str, start_page: int, end_page: int) -> str:
     try:
         os.makedirs(settings.temp_dir, exist_ok=True)
 
-        # Ім'я об'єкта може містити "/" (книги каталогу: catalog/9_grade.pdf).
         temp_file_path = os.path.join(settings.temp_dir, f"{file_name.replace('/', '_')}.pdf")
 
         if not minio_client.bucket_exists(settings.minio_bucket):
-            # Помилку з testId надішле викликач, коли отримає порожній текст.
             logger.warning(f"MinIO bucket {settings.minio_bucket} does not exists")
             return ""
 
@@ -102,8 +99,6 @@ async def get_book_text(file_name: str, start_page: int, end_page: int) -> str:
         if end_page > num_pages:
             end_page = num_pages
 
-        # Лише текст твору — без колонтитулів, виносок, підписів і завдань
-        # підручника; абзаци розділені "\n" (по них split_text_into_parts ділить текст).
         pages = extract_pages(temp_file_path, start_page - 1, end_page)
         text = "\n".join(page for page in pages if page)
 
@@ -121,9 +116,6 @@ async def get_book_text(file_name: str, start_page: int, end_page: int) -> str:
 QUESTION_ATTEMPTS = 3
 
 
-# Одна невдала відповідь моделі (порожня, без JSON, мережа) не повинна валити
-# весь тест — пробуємо ще раз. Блокування за вмістом не повторюємо: на той
-# самий текст Gemini відповість так само.
 def generate_question(prompt: str, index: int) -> Dict[str, Any]:
     for attempt in range(1, QUESTION_ATTEMPTS + 1):
         try:
@@ -137,9 +129,6 @@ def generate_question(prompt: str, index: int) -> Dict[str, Any]:
             time.sleep(2 * attempt)
 
 
-# Якщо фрагмент заблоковано (PROHIBITED_CONTENT тощо — це не вимикається
-# налаштуваннями безпеки), пробуємо кожну половину окремо: проблемне місце
-# зазвичай в одному абзаці. Не вийшло — пропускаємо це питання.
 def generate_question_for_part(part: str, index: int) -> Union[Dict[str, Any], None]:
     try:
         return generate_question(get_prompt(part), index)

@@ -28,7 +28,6 @@ public class Participant extends Audit {
     @Column(name = "NAME", nullable = false)
     private String name;
 
-    // Власний Supabase user id учня або вчителя (один профіль на акаунт).
     @Column(name = "USER_ID", nullable = false, unique = true)
     private String userId;
 
@@ -36,13 +35,10 @@ public class Participant extends Audit {
     @Column(name = "ROLE", nullable = false, length = 20)
     private UserRole role;
 
-    // Клас, до якого вступив учень (у вчителя завжди null).
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CLASSROOM_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_PARTICIPANT_CLASSROOM"))
     private Classroom classroom;
 
-    // Локальний учень: створений вчителем без власного акаунта, читає з
-    // телефона вчителя (userId — синтетичний "local:<uuid>").
     @Column(name = "IS_LOCAL", nullable = false)
     @Builder.Default
     private boolean local = false;

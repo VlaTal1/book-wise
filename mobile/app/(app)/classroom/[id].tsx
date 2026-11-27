@@ -204,11 +204,6 @@ const ClassroomScreen = () => {
         );
     }, [removeLocalStudentApi, classroomId]);
 
-    // Телефон передають учню: далі застосунок працює від його імені,
-    // повернутися до вчителя — кнопкою «Вийти» на плашці зверху.
-    // Одна навігаційна дія (повернення на головну), і вже потім зміна
-    // профілю: dismissAll + replace підряд під час перебудови дерева
-    // падали на Android (Fabric: "The specified child already has a parent").
     const onStartStudentMode = useCallback(async (student: Participant) => {
         router.dismissTo("/");
         await startStudentMode(student);
@@ -222,8 +217,6 @@ const ClassroomScreen = () => {
         invokeFetchClassroom()
     }, []);
 
-    // Поки якийсь тест генерується, періодично оновлюємо сторінку, щоб
-    // вчитель побачив "Готово" або помилку без ручного оновлення.
     const hasGeneratingTests = READING_TESTS_ENABLED && (classroom?.tests.some((test) => test.generationStatus === "GENERATING") ?? false);
     useEffect(() => {
         if (!hasGeneratingTests) {
@@ -346,7 +339,6 @@ const ClassroomScreen = () => {
                     }
                 >
                     <YStack gap={24}>
-                        {/* Classroom Card */}
                         <YStack
                             backgroundColor="#FFFFFF"
                             borderRadius={28}

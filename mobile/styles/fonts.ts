@@ -18,7 +18,7 @@ export const Geist = createFont({
         2: 22,
         3: 22,
         4: 24,
-        true: 24, // Default line height when "true" is used
+        true: 24,
         5: 32,
         6: 28,
         7: 32,
@@ -33,7 +33,7 @@ export const Geist = createFont({
         6: -0.56,
         7: -0.72,
         8: -0.8,
-        true: 0, // Default letter spacing when "true" is used
+        true: 0,
     },
     weight: {
         1: 400,
@@ -67,7 +67,7 @@ export const Inter = createFont({
         2: 20,
         3: 24,
         4: 24,
-        true: 24, // Default line height when "true" is used
+        true: 24,
         5: 32,
         6: 28,
         7: 32,
@@ -82,7 +82,7 @@ export const Inter = createFont({
         6: -0.32,
         7: -0.36,
         8: -0.4,
-        true: 0, // Default letter spacing when "true" is used
+        true: 0,
     },
     weight: {
         1: 300,

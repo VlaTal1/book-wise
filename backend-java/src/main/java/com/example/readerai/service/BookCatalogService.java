@@ -21,13 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-/**
- * Каталог предзаготовлених книг (resources/catalog). Файли один раз
- * завантажуються в MinIO під ключем catalog/<file>; коли вчитель обирає книгу,
- * для нього створюється звичайний рядок BOOK, що посилається на спільний файл,
- * тож призначення класу, доступи учнів і генерація тестів працюють як для
- * завантажених вчителем книг.
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -63,7 +56,6 @@ public class BookCatalogService {
         for (CatalogBookDTO entry : catalog) {
             String objectName = objectName(entry);
             ClassPathResource resource = new ClassPathResource(CATALOG_DIR + entry.getFile());
-            // Перезаливаємо, якщо файл у каталозі змінився (напр. очищена версія книги).
             Long size = fileSize(entry);
             if (size != null && size.equals(minioService.fileSize(objectName))) {
                 continue;

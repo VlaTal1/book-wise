@@ -34,8 +34,6 @@ class ReadingGradeCalculatorTest {
 
     @Test
     void componentsAreSummed() {
-        // темп 60/120 = 0.5 -> 2; слова 90% -> 0.75, наголос 85% -> 0.6:
-        // 0.7*0.75 + 0.3*0.6 = 0.705 -> 2.82 -> 3; тест 1/3 -> 1.33 -> 1
         var result = ReadingGradeCalculator.calculate(attempt(60, 120, 0.90, StressStatus.DONE, 0.85, 3, 1));
         assertEquals(2, result.speed());
         assertEquals(3, result.pronunciation());
@@ -45,7 +43,6 @@ class ReadingGradeCalculatorTest {
 
     @Test
     void failedStressCheckUsesWordsOnly() {
-        // слова 80% -> 0.5 -> 2
         var result = ReadingGradeCalculator.calculate(attempt(120, 120, 0.80, StressStatus.FAILED, null, 3, 3));
         assertEquals(2, result.pronunciation());
         assertEquals(10, result.total());
@@ -53,7 +50,6 @@ class ReadingGradeCalculatorTest {
 
     @Test
     void withoutQuizSumIsScaledToTwelve() {
-        // слова 92% -> 0.8, наголос 90% -> 0.8 -> 3.2 -> 3; (4 + 3) * 1.5 = 10.5 -> 11
         var result = ReadingGradeCalculator.calculate(attempt(120, 120, 0.92, StressStatus.DONE, 0.90, 0, null));
         assertNull(result.comprehension());
         assertEquals(4, result.speed());
@@ -69,7 +65,6 @@ class ReadingGradeCalculatorTest {
 
     @Test
     void speedBands() {
-        // норма 150: <37.5 -> 0, <75 -> 1, <112.5 -> 2, <150 -> 3, >=150 -> 4
         int[][] cases = {
                 {0, 0}, {37, 0}, {38, 1}, {50, 1}, {74, 1},
                 {75, 2}, {77, 2}, {101, 2}, {110, 2}, {112, 2},

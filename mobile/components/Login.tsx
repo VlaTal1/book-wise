@@ -13,16 +13,14 @@ import GoogleIcon from "@/assets/images/icons/google-icon.svg";
 import {isBlank, isValidEmail, isValidPassword} from "@/functions";
 import KeyboardAwareContainer from "@/components/KeyboardAwareContainer";
 
-// Define the different steps/screens in the password reset flow
 enum PasswordResetStep {
-    NONE, // Normal login screen
-    REQUEST_RESET, // Enter email screen
-    VERIFY_CODE, // Enter verification code screen
-    NEW_PASSWORD, // Enter new password screen
+    NONE,
+    REQUEST_RESET,
+    VERIFY_CODE,
+    NEW_PASSWORD,
 }
 
 const EMAIL_UNLOCK_TAPS = 10;
-// Пауза між натисканнями, після якої лічильник починається спочатку.
 const EMAIL_UNLOCK_TAP_GAP_MS = 1500;
 
 const GoogleSignInButton = ({onPress, isLoading}: {
@@ -73,10 +71,7 @@ const Login = () => {
         updatePassword,
         isLoading,
     } = useAuth();
-    // General login state
     const [showLoginForm, setShowLoginForm] = useState(false);
-    // Вхід через пошту прихований (у застосунку лише Google). Для тестування
-    // відкривається 10 швидкими натисканнями на назву застосунку.
     const [emailLoginUnlocked, setEmailLoginUnlocked] = useState(false);
     const titleTaps = useRef({count: 0, last: 0});
     const [email, setEmail] = useState("");
@@ -84,7 +79,6 @@ const Login = () => {
     const [localLoading, setLocalLoading] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
 
-    // Password reset state
     const [resetStep, setResetStep] = useState<PasswordResetStep>(PasswordResetStep.NONE);
     const [resetEmail, setResetEmail] = useState("");
     const [resetCode, setResetCode] = useState("");
@@ -133,8 +127,6 @@ const Login = () => {
 
         setLocalLoading(true);
         try {
-            // Після успішної реєстрації користувач одразу авторизований —
-            // layout сам перекине на вибір ролі.
             const {error} = await signUp(email, password);
 
             if (error) {
@@ -161,13 +153,11 @@ const Login = () => {
         }
     };
 
-    // Start forgot password flow
     const onForgotPassword = () => {
         setResetStep(PasswordResetStep.REQUEST_RESET);
-        setResetEmail(email); // Pre-fill with the email from login form if available
+        setResetEmail(email);
     };
 
-    // Send password reset email with code
     const onRequestPasswordReset = async () => {
         if (!resetEmail) {
             Alert.alert(i18n.t("error"), i18n.t("error_reset_email_required"));
@@ -200,7 +190,6 @@ const Login = () => {
         }
     };
 
-    // Verify the reset code
     const onVerifyResetCode = async () => {
         if (!resetCode || resetCode.length < 6) {
             Alert.alert(i18n.t("error"), i18n.t("error_reset_pass_code_invalid_description"));
@@ -225,7 +214,6 @@ const Login = () => {
         }
     };
 
-    // Set new password
     const onSetNewPassword = async () => {
         if (!newPassword) {
             Alert.alert(i18n.t("error"), i18n.t("error_reset_pass_new_pass_not_present"));
@@ -255,14 +243,12 @@ const Login = () => {
                         {
                             text: i18n.t("ok"),
                             onPress: () => {
-                                // Reset the state and return to login
                                 setResetStep(PasswordResetStep.NONE);
                                 setShowLoginForm(true);
                                 setResetEmail("");
                                 setResetCode("");
                                 setNewPassword("");
                                 setConfirmPassword("");
-                                // Pre-fill the email field on the login screen
                                 setEmail(resetEmail);
                                 setPassword("");
                             },
@@ -278,7 +264,6 @@ const Login = () => {
         }
     };
 
-    // Cancel password reset flow
     const onCancelReset = () => {
         setResetStep(PasswordResetStep.NONE);
         setResetEmail("");
@@ -295,7 +280,6 @@ const Login = () => {
         );
     }
 
-    // Render the appropriate reset password screen based on the current step
     if (resetStep !== PasswordResetStep.NONE) {
         let title = "";
         let description = "";
@@ -449,7 +433,6 @@ const Login = () => {
         }
     };
 
-    // Regular login screen
     return (
         <KeyboardAwareContainer>
             <YStack
