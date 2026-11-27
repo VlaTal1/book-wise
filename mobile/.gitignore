@@ -64,3 +64,5 @@ expo-env.d.ts
 # @end expo-cli
 
 ios
+# Android builds
+*.apk
